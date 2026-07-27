@@ -1043,9 +1043,12 @@ This AI agent is designed to assist you in developing Android applications direc
   <string name="lsp_retry_button">Retry</string>
 
   <!-- Signing Configuration -->
+  <string name="title_signing">Signing</string>
   <string name="title_signing_config">Signing Configuration</string>
+  <string name="signing_description">Create or import a keystore to sign your APK for release builds.</string>
   <string name="create_new_keystore">Create New Keystore</string>
   <string name="import_keystore">Import Existing Keystore</string>
+  <string name="import_keystore_todo">Import keystore — coming soon</string>
   <string name="keystore_name">Keystore File Name</string>
   <string name="keystore_alias_label">Alias</string>
   <string name="keystore_password">Keystore Password</string>
@@ -1065,4 +1068,9 @@ This AI agent is designed to assist you in developing Android applications direc
   <string name="signing_error">An error occurred: %s</string>
   <string name="signing_config_exists">A signing configuration already exists</string>
   <string name="signing_config_current">Current configuration:</string>
+  <string name="signing_fill_required">Please fill in all required fields</string>
+  <string name="signing_cn_required">Common Name (CN) is required</string>
+  <string name="signing_no_project">Could not determine project directory</string>
+  <string name="signing_no_build_file">Could not find build.gradle file</string>
+  <string name="signing_inject_failed">Failed to inject signing configuration</string>
 </resources>

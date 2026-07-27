@@ -1006,9 +1006,12 @@
   <string name="lsp_retry_button">重试</string>
 
   <!-- Signing Configuration -->
+  <string name="title_signing">签名</string>
   <string name="title_signing_config">签名配置</string>
+  <string name="signing_description">创建或导入签名文件，用于对 Release APK 进行签名。</string>
   <string name="create_new_keystore">创建新签名文件</string>
   <string name="import_keystore">导入现有签名</string>
+  <string name="import_keystore_todo">导入签名 — 即将推出</string>
   <string name="keystore_name">签名文件名</string>
   <string name="keystore_alias_label">别名</string>
   <string name="keystore_password">密钥库密码</string>
@@ -1028,4 +1031,9 @@
   <string name="signing_error">发生错误：%s</string>
   <string name="signing_config_exists">已存在签名配置</string>
   <string name="signing_config_current">当前配置：</string>
+  <string name="signing_fill_required">请填写所有必填字段</string>
+  <string name="signing_cn_required">通用名称 (CN) 为必填项</string>
+  <string name="signing_no_project">无法确定项目目录</string>
+  <string name="signing_no_build_file">找不到 build.gradle 文件</string>
+  <string name="signing_inject_failed">签名配置写入失败</string>
 </resources>

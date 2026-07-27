@@ -192,10 +192,6 @@ constructor(
       (fragment as ShareableOutputFragment).clearOutput()
     }
 
-    binding.bottomAction.btnSigning.setOnClickListener {
-      showSigningConfigDialog()
-    }
-
     binding.headerContainer.setOnClickListener {
       if (behavior.state != BottomSheetBehavior.STATE_EXPANDED) {
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -408,15 +404,6 @@ constructor(
     )
   }
 
-
-  private fun showSigningConfigDialog() {
-    try {
-      val dialog = SigningConfigBottomSheet()
-      dialog.show((context as FragmentActivity).supportFragmentManager, "signing_config")
-    } catch (e: Exception) {
-      log.error("Failed to show signing config dialog", e)
-    }
-  }
 
   private fun setupBlurEffect() {
       binding.blurView.viewTreeObserver.addOnGlobalLayoutListener(
