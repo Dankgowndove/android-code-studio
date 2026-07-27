@@ -1041,4 +1041,28 @@ This AI agent is designed to assist you in developing Android applications direc
   <string name="lsp_ok_button">OK</string>
   <string name="lsp_installation_failed_description">Failed to install update: %s</string>
   <string name="lsp_retry_button">Retry</string>
+
+  <!-- Signing Configuration -->
+  <string name="title_signing_config">Signing Configuration</string>
+  <string name="create_new_keystore">Create New Keystore</string>
+  <string name="import_keystore">Import Existing Keystore</string>
+  <string name="keystore_name">Keystore File Name</string>
+  <string name="keystore_alias_label">Alias</string>
+  <string name="keystore_password">Keystore Password</string>
+  <string name="key_password">Key Password</string>
+  <string name="cert_validity">Validity (days)</string>
+  <string name="cert_dname_cn">Common Name (CN)</string>
+  <string name="cert_dname_o">Organization (O)</string>
+  <string name="cert_dname_ou">Organizational Unit (OU)</string>
+  <string name="cert_dname_l">City (L)</string>
+  <string name="cert_dname_st">State/Province (ST)</string>
+  <string name="cert_dname_c">Country Code (C)</string>
+  <string name="signing_config_injected">Signing configuration has been written to build file</string>
+  <string name="no_signing_config">No signing configuration set</string>
+  <string name="signing_btn_create">Create</string>
+  <string name="signing_import_success">Keystore imported successfully</string>
+  <string name="signing_create_success">Keystore created successfully</string>
+  <string name="signing_error">An error occurred: %s</string>
+  <string name="signing_config_exists">A signing configuration already exists</string>
+  <string name="signing_config_current">Current configuration:</string>
 </resources>

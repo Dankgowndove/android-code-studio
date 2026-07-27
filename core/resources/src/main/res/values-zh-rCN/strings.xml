@@ -1004,4 +1004,28 @@
   <string name="lsp_ok_button">好的</string>
   <string name="lsp_installation_failed_description">无法安装更新：%s</string>
   <string name="lsp_retry_button">重试</string>
+
+  <!-- Signing Configuration -->
+  <string name="title_signing_config">签名配置</string>
+  <string name="create_new_keystore">创建新签名文件</string>
+  <string name="import_keystore">导入现有签名</string>
+  <string name="keystore_name">签名文件名</string>
+  <string name="keystore_alias_label">别名</string>
+  <string name="keystore_password">密钥库密码</string>
+  <string name="key_password">密钥密码</string>
+  <string name="cert_validity">有效期（天）</string>
+  <string name="cert_dname_cn">通用名称 (CN)</string>
+  <string name="cert_dname_o">组织 (O)</string>
+  <string name="cert_dname_ou">组织单位 (OU)</string>
+  <string name="cert_dname_l">城市 (L)</string>
+  <string name="cert_dname_st">省份 (ST)</string>
+  <string name="cert_dname_c">国家代码 (C)</string>
+  <string name="signing_config_injected">签名配置已写入构建文件</string>
+  <string name="no_signing_config">未配置签名</string>
+  <string name="signing_btn_create">创建</string>
+  <string name="signing_import_success">签名文件导入成功</string>
+  <string name="signing_create_success">签名文件创建成功</string>
+  <string name="signing_error">发生错误：%s</string>
+  <string name="signing_config_exists">已存在签名配置</string>
+  <string name="signing_config_current">当前配置：</string>
 </resources>
