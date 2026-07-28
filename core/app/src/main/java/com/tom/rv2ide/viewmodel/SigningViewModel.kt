@@ -30,15 +30,6 @@ class SigningViewModel : ViewModel() {
 
     /**
      * Creates a new JKS keystore file.
-     *
-     * @param projectDir    The project root directory.
-     * @param keystoreName  Desired keystore filename.
-     * @param alias         Key alias.
-     * @param keyPassword   Key password.
-     * @param storePassword Keystore password.
-     * @param validityDays  Certificate validity in days.
-     * @param dname         Distinguished name string.
-     * @return Result containing the keystore File on success.
      */
     fun createKeystore(
         projectDir: File,
@@ -63,13 +54,6 @@ class SigningViewModel : ViewModel() {
 
     /**
      * Injects signing configuration into the build file.
-     *
-     * @param buildFile     The build.gradle or build.gradle.kts file.
-     * @param keystorePath  Path to the keystore file (relative or absolute).
-     * @param storePassword Keystore password.
-     * @param keyAlias      Key alias.
-     * @param keyPassword   Key password.
-     * @return true if the config was injected successfully.
      */
     fun injectSigningConfig(
         buildFile: File,
@@ -87,5 +71,19 @@ class SigningViewModel : ViewModel() {
                 keyPassword = keyPassword
             )
         )
+    }
+
+    /**
+     * Checks if a build file already has signing configuration.
+     */
+    fun hasSigningConfig(buildFile: File): Boolean {
+        return GradleConfigWriter.hasSigningConfig(buildFile)
+    }
+
+    /**
+     * Removes signing configuration from the build file.
+     */
+    fun removeSigningConfig(buildFile: File): Boolean {
+        return GradleConfigWriter.removeSigningConfig(buildFile)
     }
 }

@@ -31,16 +31,33 @@ import java.security.KeyStore
 object KeystoreManager {
 
     /**
+     * Tries to find the keytool executable in common locations.
+     */
+    private fun findKeytool(): String? {
+        val candidates = listOf(
+            "keytool",
+            "/usr/bin/keytool",
+            "${Environment.PREFIX}/bin/keytool",
+            "${Environment.PREFIX}/opt/openjdk/bin/keytool"
+        )
+        for (candidate in candidates) {
+            val file = File(candidate)
+            if (file.exists() && file.canExecute()) return candidate
+        }
+        // Try java home
+        try {
+            val javaHome = System.getProperty("java.home")
+            if (javaHome != null) {
+                val kt = File(javaHome, "bin/keytool")
+                if (kt.exists() && kt.canExecute()) return kt.absolutePath
+            }
+        } catch (_: Exception) {}
+        // Fall back to just "keytool" - it might be on PATH
+        return "keytool"
+    }
+
+    /**
      * Creates a new JKS keystore with a self-signed key pair using the keytool utility.
-     *
-     * @param keystoreDir  Directory where the keystore file will be created.
-     * @param keystoreName Name of the keystore file (e.g. "release.keystore").
-     * @param alias        Key alias within the keystore.
-     * @param keyPassword  Password for the private key.
-     * @param storePassword Password for the keystore itself.
-     * @param validityDays Number of days the certificate is valid (default 36500 ≈ 100 years).
-     * @param dname        Distinguished name string (e.g. "CN=xxx, OU=xxx, O=xxx, L=xxx, ST=xxx, C=xxx").
-     * @return Result containing the created keystore file on success, or the exception on failure.
      */
     fun createKeystore(
         keystoreDir: File,
@@ -55,11 +72,17 @@ object KeystoreManager {
             keystoreDir.mkdirs()
             val keystoreFile = File(keystoreDir, keystoreName)
             if (keystoreFile.exists()) {
-                return Result.failure(IllegalStateException("Keystore file already exists: ${keystoreFile.absolutePath}"))
+                return Result.failure(IllegalStateException(
+                    "Keystore file already exists: ${keystoreFile.absolutePath}"
+                ))
             }
 
+            val keytool = findKeytool() ?: return Result.failure(
+                RuntimeException("keytool not found. Please ensure JDK is installed.")
+            )
+
             val cmd = arrayOf(
-                "keytool", "-genkeypair", "-v",
+                keytool, "-genkeypair", "-v",
                 "-keystore", keystoreFile.absolutePath,
                 "-alias", alias,
                 "-keyalg", "RSA",
@@ -78,7 +101,9 @@ object KeystoreManager {
                 Result.success(keystoreFile)
             } else {
                 val error = process.errorStream.bufferedReader().readText()
-                Result.failure(RuntimeException("keytool failed with exit code $exitCode: $error"))
+                val stdOut = process.inputStream.bufferedReader().readText()
+                val msg = if (error.isNotBlank()) error else stdOut
+                Result.failure(RuntimeException("keytool failed (exit $exitCode): $msg"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -87,12 +112,6 @@ object KeystoreManager {
 
     /**
      * Verifies that a keystore file can be opened with the given credentials.
-     *
-     * @param keystoreFile  The keystore file to verify.
-     * @param storePassword The keystore password.
-     * @param keyAlias      The alias of the key to verify.
-     * @param keyPassword   The password for the key.
-     * @return true if the keystore is valid and the key can be retrieved.
      */
     fun verifyKeystore(
         keystoreFile: File,

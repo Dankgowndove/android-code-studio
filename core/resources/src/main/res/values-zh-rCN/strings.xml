@@ -1036,4 +1036,11 @@
   <string name="signing_no_project">无法确定项目目录</string>
   <string name="signing_no_build_file">找不到 build.gradle 文件</string>
   <string name="signing_inject_failed">签名配置写入失败</string>
+  <string name="signing_btn_import">导入</string>
+  <string name="signing_no_file_selected">未选择文件</string>
+  <string name="signing_config_active">项目已有签名配置。</string>
+  <string name="signing_config_removed">签名配置已移除</string>
+  <string name="signing_remove_failed">移除签名配置失败</string>
+  <string name="signing_remove_config">移除签名配置</string>
+  <string name="keystore_unknown_alias">未知（请手动输入）</string>
 </resources>

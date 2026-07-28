@@ -1073,4 +1073,11 @@ This AI agent is designed to assist you in developing Android applications direc
   <string name="signing_no_project">Could not determine project directory</string>
   <string name="signing_no_build_file">Could not find build.gradle file</string>
   <string name="signing_inject_failed">Failed to inject signing configuration</string>
+  <string name="signing_btn_import">Import</string>
+  <string name="signing_no_file_selected">No file selected</string>
+  <string name="signing_config_active">Your project has an active signing configuration.</string>
+  <string name="signing_config_removed">Signing configuration removed</string>
+  <string name="signing_remove_failed">Failed to remove signing configuration</string>
+  <string name="signing_remove_config">Remove Signing Config</string>
+  <string name="keystore_unknown_alias">Unknown (enter manually)</string>
 </resources>

@@ -30,13 +30,78 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+        <!-- ===== Status View (shown when config exists) ===== -->
+        <LinearLayout
+            android:id="@+id/status_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_signing_config"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                android:textColor="?attr/colorOnSurface"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"
+                style="@style/Widget.Material3.CardView.Filled">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv_status_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/signing_config_exists"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="?attr/colorPrimary" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv_status_details"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/signing_config_active"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_remove_config"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/signing_remove_config"
+                android:gravity="start|center_vertical"
+                android:paddingStart="16dp"
+                app:icon="@drawable/ic_delete"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
         <!-- ===== Options View ===== -->
         <LinearLayout
             android:id="@+id/options_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
+            android:orientation="vertical">
 
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
@@ -87,6 +152,7 @@
             android:visibility="gone">
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/form_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/create_new_keystore"
@@ -175,6 +241,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/dn_section_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Distinguished Name (DN)"

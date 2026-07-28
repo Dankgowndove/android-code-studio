@@ -17,20 +17,28 @@
 
 package com.tom.rv2ide.fragments
 
+import android.app.ProgressDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.tom.rv2ide.R
 import com.tom.rv2ide.projects.IProjectManager
+import com.tom.rv2ide.tasks.TaskExecutor
 import com.tom.rv2ide.viewmodel.SigningViewModel
 import java.io.File
+import java.io.FileInputStream
+import java.security.KeyStore
 
 /**
  * Fragment for managing app signing configuration.
@@ -48,6 +56,12 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
 
     private lateinit var optionsView: LinearLayout
     private lateinit var formView: LinearLayout
+    private lateinit var statusView: LinearLayout
+
+    // Status view
+    private lateinit var tvStatusTitle: TextView
+    private lateinit var tvStatusDetails: TextView
+    private lateinit var btnRemoveConfig: MaterialButton
 
     // Form fields
     private lateinit var keystoreName: TextInputEditText
@@ -62,20 +76,44 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
     private lateinit var dnameSt: TextInputEditText
     private lateinit var dnameC: TextInputEditText
 
+    // Form mode: create or import
+    private var isImportMode = false
+    private var importSourceUri: Uri? = null
+
+    private val importKeystoreLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { handleImportUri(it) }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[SigningViewModel::class.java]
 
         optionsView = view.findViewById(R.id.options_view)
         formView = view.findViewById(R.id.form_view)
+        statusView = view.findViewById(R.id.status_view)
+
+        tvStatusTitle = view.findViewById(R.id.tv_status_title)
+        tvStatusDetails = view.findViewById(R.id.tv_status_details)
+        btnRemoveConfig = view.findViewById(R.id.btn_remove_config)
 
         // Options buttons
         view.findViewById<Button>(R.id.btn_create_new).setOnClickListener {
+            isImportMode = false
+            importSourceUri = null
+            formView.findViewById<TextView>(R.id.form_title).apply {
+                text = getString(R.string.create_new_keystore)
+            }
             showForm()
         }
 
         view.findViewById<Button>(R.id.btn_import_existing).setOnClickListener {
-            showImportKeystoreDialog()
+            openFilePicker()
+        }
+
+        btnRemoveConfig.setOnClickListener {
+            removeExistingConfig()
         }
 
         // Form fields
@@ -92,27 +130,173 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
         dnameC = view.findViewById(R.id.dname_c)
 
         view.findViewById<Button>(R.id.btn_create).setOnClickListener {
-            createKeystore()
+            if (isImportMode) {
+                importKeystore()
+            } else {
+                createKeystore()
+            }
         }
 
         view.findViewById<Button>(R.id.btn_form_cancel).setOnClickListener {
             showOptions()
         }
+
+        // Check existing config
+        refreshStatus()
     }
 
-    private fun showOptions() {
-        optionsView.visibility = View.VISIBLE
-        formView.visibility = View.GONE
+    private fun refreshStatus() {
+        val buildFile = findBuildFile(getProjectDir())
+        val hasConfig = buildFile?.let { viewModel.hasSigningConfig(it) } ?: false
+
+        if (hasConfig) {
+            optionsView.visibility = View.GONE
+            statusView.visibility = View.VISIBLE
+            tvStatusTitle.text = getString(R.string.signing_config_exists)
+            tvStatusDetails.text = getString(R.string.signing_config_active)
+            btnRemoveConfig.isVisible = true
+        } else {
+            optionsView.visibility = View.VISIBLE
+            statusView.visibility = View.GONE
+        }
     }
 
-    private fun showForm() {
-        optionsView.visibility = View.GONE
-        formView.visibility = View.VISIBLE
+    private fun removeExistingConfig() {
+        val buildFile = findBuildFile(getProjectDir()) ?: return
+        if (viewModel.removeSigningConfig(buildFile)) {
+            Toast.makeText(context, R.string.signing_config_removed, Toast.LENGTH_SHORT).show()
+            refreshStatus()
+        } else {
+            Toast.makeText(context, R.string.signing_remove_failed, Toast.LENGTH_SHORT).show()
+        }
     }
 
-    private fun showImportKeystoreDialog() {
-        // TODO: Implement file picker for importing existing keystore
-        Toast.makeText(context, R.string.import_keystore_todo, Toast.LENGTH_SHORT).show()
+    private fun openFilePicker() {
+        try {
+            importKeystoreLauncher.launch(arrayOf(
+                "application/octet-stream",
+                "application/x-java-keystore",
+                "*/*"
+            ))
+        } catch (e: Exception) {
+            Toast.makeText(context, getString(R.string.signing_error, e.message), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun handleImportUri(uri: Uri) {
+        importSourceUri = uri
+        isImportMode = true
+
+        // Try to read the keystore alias if possible
+        var aliasHint = ""
+        try {
+            context?.contentResolver?.openInputStream(uri)?.use { input ->
+                val ks = KeyStore.getInstance(KeyStore.getDefaultType())
+                ks.load(input, null)
+                if (ks.aliases().hasMoreElements()) {
+                    aliasHint = ks.aliases().nextElement()
+                }
+            }
+        } catch (_: Exception) {
+            // KeyStore is password protected, can't read aliases without password
+            aliasHint = getString(R.string.keystore_unknown_alias)
+        }
+
+        formView.findViewById<TextView>(R.id.form_title).apply {
+            text = getString(R.string.import_keystore)
+        }
+
+        // Pre-fill form for import mode
+        keystoreName.setText(getKeystoreNameFromUri(uri))
+        keystoreAlias.setText(aliasHint)
+        keystorePassword.setText("")
+        keyPassword.setText("")
+
+        // Hide DN fields for import (not needed)
+        listOf(
+            view?.findViewById<View>(R.id.dn_section_header),
+            dnameCn.parent.parent as? View,
+            dnameO.parent.parent as? View,
+            dnameOu.parent.parent as? View,
+            dnameL.parent.parent as? View,
+            dnameSt.parent.parent as? View,
+            dnameC.parent.parent as? View,
+            validity.parent.parent as? View,
+            dnameCn.text?.let { view?.findViewById<View>(R.id.keystore_name)?.parent?.parent as? View }
+        ).forEach { it?.visibility = View.GONE }
+
+        // In import mode, the form only needs: alias, store password, key password
+        view?.findViewById<View>(R.id.validity)?.parent?.parent?.visibility = View.GONE
+
+        // Update create button text for import
+        view?.findViewById<Button>(R.id.btn_create)?.apply {
+            text = getString(R.string.signing_btn_import)
+        }
+
+        showForm()
+    }
+
+    private fun getKeystoreNameFromUri(uri: Uri): String {
+        val displayName = uri.lastPathSegment ?: "imported.keystore"
+        return if (displayName.contains(".")) displayName
+        else "$displayName.keystore"
+    }
+
+    private fun importKeystore() {
+        val uri = importSourceUri ?: run {
+            Toast.makeText(context, R.string.signing_no_file_selected, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val alias = keystoreAlias.text.toString().trim()
+        val storePass = keystorePassword.text.toString()
+        val keyPass = keyPassword.text.toString()
+        val targetName = keystoreName.text.toString().trim()
+
+        if (alias.isEmpty() || storePass.isEmpty() || keyPass.isEmpty()) {
+            Toast.makeText(context, R.string.signing_fill_required, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val projectDir = getProjectDir() ?: run {
+            Toast.makeText(context, R.string.signing_no_project, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val keystoreDir = File(projectDir, "keystore").apply { mkdirs() }
+        val targetFile = File(keystoreDir, targetName.ifEmpty { "imported.keystore" })
+
+        TaskExecutor.executeAsyncProvideError({
+            try {
+                // Copy imported keystore to project directory
+                context?.contentResolver?.openInputStream(uri)?.use { input ->
+                    targetFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+
+                // Verify the keystore is valid
+                val ks = KeyStore.getInstance(KeyStore.getDefaultType())
+                FileInputStream(targetFile).use { ks.load(it, storePass.toCharArray()) }
+                if (ks.getKey(alias, keyPass.toCharArray()) == null) {
+                    throw IllegalArgumentException("Invalid alias or key password")
+                }
+
+                targetFile
+            } catch (e: Exception) {
+                if (targetFile.exists()) targetFile.delete()
+                throw e
+            }
+        }) { result: File?, error: Throwable? ->
+            if (error != null) {
+                Toast.makeText(context, getString(R.string.signing_error, error.message), Toast.LENGTH_LONG).show()
+                return@executeAsyncProvideError
+            }
+            if (result != null) {
+                Toast.makeText(context, R.string.signing_import_success, Toast.LENGTH_SHORT).show()
+                injectConfig(result, storePass, alias, keyPass)
+            }
+        }
     }
 
     private fun createKeystore() {
@@ -133,39 +317,40 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
             return
         }
 
-        val dnameParts = mutableListOf<String>()
-        dnameParts.add("CN=$cn")
-        val o = dnameO.text.toString().trim()
-        val ou = dnameOu.text.toString().trim()
-        val l = dnameL.text.toString().trim()
-        val st = dnameSt.text.toString().trim()
-        val c = dnameC.text.toString().trim()
-        if (ou.isNotEmpty()) dnameParts.add("OU=$ou")
-        if (o.isNotEmpty()) dnameParts.add("O=$o")
-        if (l.isNotEmpty()) dnameParts.add("L=$l")
-        if (st.isNotEmpty()) dnameParts.add("ST=$st")
-        if (c.isNotEmpty()) dnameParts.add("C=$c")
+        val dnameParts = mutableListOf("CN=$cn")
+        dnameO.text.toString().trim().let { if (it.isNotEmpty()) dnameParts.add("O=$it") }
+        dnameOu.text.toString().trim().let { if (it.isNotEmpty()) dnameParts.add("OU=$it") }
+        dnameL.text.toString().trim().let { if (it.isNotEmpty()) dnameParts.add("L=$it") }
+        dnameSt.text.toString().trim().let { if (it.isNotEmpty()) dnameParts.add("ST=$it") }
+        dnameC.text.toString().trim().let { if (it.isNotEmpty()) dnameParts.add("C=$it") }
         val dname = dnameParts.joinToString(", ")
 
-        val projectDir = getProjectDir()
-        if (projectDir == null) {
+        val projectDir = getProjectDir() ?: run {
             Toast.makeText(context, R.string.signing_no_project, Toast.LENGTH_SHORT).show()
             return
         }
 
-        viewModel.createKeystore(
-            projectDir = projectDir,
-            keystoreName = name,
-            alias = alias,
-            keyPassword = keyPass,
-            storePassword = storePass,
-            validityDays = validityDays,
-            dname = dname
-        ).onSuccess { keystoreFile ->
-            Toast.makeText(context, getString(R.string.signing_create_success), Toast.LENGTH_SHORT).show()
-            injectConfig(keystoreFile, storePass, alias, keyPass)
-        }.onFailure { error ->
-            Toast.makeText(context, getString(R.string.signing_error, error.message), Toast.LENGTH_LONG).show()
+        TaskExecutor.executeAsyncProvideError({
+            viewModel.createKeystore(
+                projectDir = projectDir,
+                keystoreName = name,
+                alias = alias,
+                keyPassword = keyPass,
+                storePassword = storePass,
+                validityDays = validityDays,
+                dname = dname
+            )
+        }) { result: Result<File>?, _: Throwable? ->
+            if (result == null) {
+                Toast.makeText(context, getString(R.string.signing_error, "Unknown error"), Toast.LENGTH_LONG).show()
+                return@executeAsyncProvideError
+            }
+            result.onSuccess { keystoreFile ->
+                Toast.makeText(context, R.string.signing_create_success, Toast.LENGTH_SHORT).show()
+                injectConfig(keystoreFile, storePass, alias, keyPass)
+            }.onFailure { error ->
+                Toast.makeText(context, getString(R.string.signing_error, error.message), Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -188,9 +373,23 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
         if (success) {
             Toast.makeText(context, getString(R.string.signing_config_injected), Toast.LENGTH_LONG).show()
             showOptions()
+            refreshStatus()
         } else {
             Toast.makeText(context, R.string.signing_inject_failed, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun showOptions() {
+        optionsView.visibility = View.VISIBLE
+        formView.visibility = View.GONE
+        statusView.visibility = View.GONE
+        refreshStatus()
+    }
+
+    private fun showForm() {
+        optionsView.visibility = View.GONE
+        formView.visibility = View.VISIBLE
+        statusView.visibility = View.GONE
     }
 
     private fun getProjectDir(): File? {
@@ -204,12 +403,11 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
 
     private fun findBuildFile(projectDir: File?): File? {
         if (projectDir == null) return null
-        val candidates = listOf(
+        return listOf(
             File(projectDir, "app/build.gradle.kts"),
             File(projectDir, "app/build.gradle"),
             File(projectDir, "build.gradle.kts"),
             File(projectDir, "build.gradle")
-        )
-        return candidates.firstOrNull { it.exists() }
+        ).firstOrNull { it.exists() }
     }
 }

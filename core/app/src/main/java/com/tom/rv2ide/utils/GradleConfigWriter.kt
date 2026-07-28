@@ -29,12 +29,6 @@ object GradleConfigWriter {
 
     /**
      * Represents a signing configuration to inject into the build file.
-     *
-     * @param keystorePath  Absolute or relative path to the keystore file.
-     * @param storePassword The keystore password.
-     * @param keyAlias      The alias of the signing key.
-     * @param keyPassword   The password for the signing key.
-     * @param configName    The name for this signing config block (default "release").
      */
     data class SigningConfig(
         val keystorePath: String,
@@ -45,11 +39,54 @@ object GradleConfigWriter {
     )
 
     /**
+     * Checks if signing configuration already exists in the build file.
+     */
+    fun hasSigningConfig(buildFile: File): Boolean {
+        if (!buildFile.exists()) return false
+        val content = buildFile.readText()
+        return content.contains("signingConfigs") || content.contains("signingConfig")
+    }
+
+    /**
+     * Removes signing configuration from the build file.
+     */
+    fun removeSigningConfig(buildFile: File): Boolean {
+        if (!buildFile.exists()) return false
+        return try {
+            val content = buildFile.readText()
+            // Remove signingConfigs block (handles both Kotlin DSL and Groovy DSL)
+            val pattern = Regex(
+                """(?m)^\s*signingConfigs\s*\{.*?(?=^\s*(?:\w+\s*\{|$))""",
+                setOf(RegexOption.DOT_MATCHES_ALL)
+            )
+            var newContent = pattern.replace(content, "")
+
+            // Remove signingConfig reference from buildTypes
+            val signRefPattern = Regex(
+                """(?m)^\s*signingConfig\s*[= ]\s*signingConfigs[^}\n]*\n?"""
+            )
+            newContent = signRefPattern.replace(newContent, "")
+
+            // Remove keystore properties loading block (Kotlin DSL)
+            val propsPattern = Regex(
+                """(?m)^\s*val\s+keystoreProperties\b.*?(?=^\s*(?:\w+\s*\{|$))""",
+                setOf(RegexOption.DOT_MATCHES_ALL)
+            )
+            newContent = propsPattern.replace(newContent, "")
+
+            if (newContent != content) {
+                buildFile.writeText(newContent)
+                true
+            } else {
+                false
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
      * Injects signing configuration into the build file.
-     *
-     * @param buildFile The build.gradle or build.gradle.kts file.
-     * @param config    The signing configuration to inject.
-     * @return true if successful.
      */
     fun injectSigningConfig(buildFile: File, config: SigningConfig): Boolean {
         val content = buildFile.readText()
@@ -74,6 +111,9 @@ object GradleConfigWriter {
         }
 
         return try {
+            // Backup before modifying
+            val backupFile = File(buildFile.parentFile, "${buildFile.name}.bak")
+            buildFile.copyTo(backupFile, overwrite = true)
             buildFile.writeText(newContent)
             true
         } catch (e: Exception) {
@@ -84,7 +124,6 @@ object GradleConfigWriter {
     private fun injectKotlinDsl(content: String, config: SigningConfig): String {
         var newContent = content
 
-        // Add signingConfigs block if not present
         if (!newContent.contains("signingConfigs")) {
             val signingBlock = """
                 |    signingConfigs {
@@ -106,7 +145,6 @@ object GradleConfigWriter {
             }
         }
 
-        // Add signingConfig to release buildType
         if (!newContent.contains("signingConfig = signingConfigs")) {
             val releasePattern = Regex("""(getByName\("release"\)|create\("release"\)|release\s*\{)\s*\{""")
             newContent = releasePattern.replace(newContent) { match ->
