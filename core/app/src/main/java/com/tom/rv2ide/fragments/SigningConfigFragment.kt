@@ -212,21 +212,17 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
         keystorePassword.setText("")
         keyPassword.setText("")
 
-        // Hide DN fields for import (not needed)
-        listOf(
+        // Hide DN fields and validity for import (not needed)
+        listOfNotNull(
             view?.findViewById<View>(R.id.dn_section_header),
-            dnameCn.parent.parent as? View,
-            dnameO.parent.parent as? View,
-            dnameOu.parent.parent as? View,
-            dnameL.parent.parent as? View,
-            dnameSt.parent.parent as? View,
-            dnameC.parent.parent as? View,
-            validity.parent.parent as? View,
-            dnameCn.text?.let { view?.findViewById<View>(R.id.keystore_name)?.parent?.parent as? View }
-        ).forEach { it?.visibility = View.GONE }
-
-        // In import mode, the form only needs: alias, store password, key password
-        view?.findViewById<View>(R.id.validity)?.parent?.parent?.visibility = View.GONE
+            (dnameCn.parent.parent as? View),
+            (dnameO.parent.parent as? View),
+            (dnameOu.parent.parent as? View),
+            (dnameL.parent.parent as? View),
+            (dnameSt.parent.parent as? View),
+            (dnameC.parent.parent as? View),
+            (validity.parent.parent as? View)
+        ).forEach { it.visibility = View.GONE }
 
         // Update create button text for import
         view?.findViewById<Button>(R.id.btn_create)?.apply {
