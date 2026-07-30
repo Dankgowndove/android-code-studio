@@ -22,6 +22,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.tom.rv2ide.artificial.dialogs.LocalLLMConfigDialog
+import com.tom.rv2ide.artificial.agents.custom.CustomProviderManager
+import com.tom.rv2ide.artificial.dialogs.AddCustomProviderDialog
 
 class AIPreferencesFragment(
     private val aiAgent: AIAgentManager,
@@ -83,7 +85,7 @@ class AIPreferencesFragment(
     }
 
     private fun setupProviderDropdown() {
-        val providerMap = mapOf(
+        val builtinProviderMap = linkedMapOf(
             "gemini" to "Google Gemini",
             "openai" to "OpenAI",
             "claude" to "Anthropic Claude",
@@ -91,24 +93,42 @@ class AIPreferencesFragment(
             "grok" to "xAI Grok",
             "localllm" to "Local LLM"
         )
-        
-        val allProviderIds = listOf("gemini", "openai", "claude", "deepseek", "grok", "localllm")
-        val providerNames = allProviderIds.map { providerMap[it] ?: it }
-        
+
+        // Add custom providers
+        val customProviders = CustomProviderManager.getAll()
+        val allProviderIds = builtinProviderMap.keys.toMutableList()
+        val providerNames = builtinProviderMap.values.toMutableList()
+        for (cp in customProviders) {
+            allProviderIds.add(cp.id)
+            providerNames.add(cp.name)
+        }
+
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, providerNames)
         providerDropdown.setAdapter(adapter)
-        
+
         updateProviderDropdownSelection()
-        
+
         providerDropdown.setOnItemClickListener { _, _, position, _ ->
-            val selectedProviderId = allProviderIds[position]
-            val selectedProviderName = providerNames[position]
-            
-            if (selectedProviderId == "localllm") {
-                showLocalLLMConfigDialog(selectedProviderName)
-            } else {
-                handleProviderChange(selectedProviderId, selectedProviderName)
+            if (position < allProviderIds.size) {
+                val selectedProviderId = allProviderIds[position]
+                val selectedProviderName = providerNames[position]
+
+                if (selectedProviderId == "localllm") {
+                    showLocalLLMConfigDialog(selectedProviderName)
+                } else {
+                    handleProviderChange(selectedProviderId, selectedProviderName)
+                }
             }
+        }
+
+        // Add custom provider button
+        view?.findViewById<View>(R.id.btnAddCustomProvider)?.setOnClickListener {
+            val dialog = AddCustomProviderDialog()
+            dialog.onProviderAdded = {
+                setupProviderDropdown()
+                updateCurrentStatus()
+            }
+            dialog.show(parentFragmentManager, AddCustomProviderDialog.TAG)
         }
     }
     
@@ -120,7 +140,7 @@ class AIPreferencesFragment(
     }
     
     private fun updateProviderDropdownSelection() {
-        val providerMap = mapOf(
+        val builtinProviderMap = mapOf(
             "gemini" to "Google Gemini",
             "openai" to "OpenAI",
             "claude" to "Anthropic Claude",
@@ -128,9 +148,11 @@ class AIPreferencesFragment(
             "grok" to "xAI Grok",
             "localllm" to "Local LLM"
         )
-        
+
         val currentProviderId = agents.getProvider()
-        val currentProviderName = providerMap[currentProviderId] ?: currentProviderId
+        val currentProviderName = builtinProviderMap[currentProviderId]
+            ?: CustomProviderManager.getProviderName(currentProviderId)
+            ?: currentProviderId
         providerDropdown.setText(currentProviderName, false)
     }
     
@@ -147,7 +169,7 @@ class AIPreferencesFragment(
             "deepseek" -> "DeepSeek"
             "grok" -> "xAI Grok"
             "localllm" -> "Local LLM"
-            else -> currentProvider.uppercase()
+            else -> CustomProviderManager.getProviderName(currentProvider) ?: currentProvider.uppercase()
         }
         
         currentProviderText.text = providerDisplayName

@@ -123,7 +123,12 @@ class Agents(ctx: Context) {
   
   private val deepseek_models = arrayOf(
     "deepseek-chat",
-    "deepseek-reasoner"
+    "deepseek-reasoner",
+    "deepseek-coder",
+    "deepseek-v3",
+    "deepseek-r1",
+    "deepseek-r1-distill-qwen-32b",
+    "deepseek-r1-distill-llama-70b"
   )
   
   private val grok_models = arrayOf(
@@ -147,6 +152,9 @@ class Agents(ctx: Context) {
   val ai_agents = openai_models + claude_models + gemini_models + deepseek_models + grok_models + localllm_models
   
   fun getModelsForProvider(providerId: String): Array<String> {
+    // Check custom providers first
+    val customModels = com.tom.rv2ide.artificial.agents.custom.CustomProviderManager.getModelsForProvider(providerId)
+    if (customModels != null) return customModels
     return when(providerId) {
       "openai" -> openai_models
       "gemini" -> gemini_models
@@ -159,6 +167,9 @@ class Agents(ctx: Context) {
   }
   
   fun getProviderForModel(modelName: String): String? {
+    // Check custom providers first
+    val customProvider = com.tom.rv2ide.artificial.agents.custom.CustomProviderManager.getProviderForModel(modelName)
+    if (customProvider != null) return customProvider
     return when {
       modelName in openai_models -> "openai"
       modelName in gemini_models -> "gemini"

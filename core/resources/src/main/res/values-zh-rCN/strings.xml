@@ -1004,4 +1004,18 @@
   <string name="lsp_ok_button">好的</string>
   <string name="lsp_installation_failed_description">无法安装更新：%s</string>
   <string name="lsp_retry_button">重试</string>
+
+  <!-- Custom AI Provider -->
+  <string name="ai_custom_provider_title">添加自定义提供商</string>
+  <string name="ai_custom_provider_name">提供商名称</string>
+  <string name="ai_custom_base_url">Base URL</string>
+  <string name="ai_custom_api_key">API 密钥</string>
+  <string name="ai_custom_protocol">协议</string>
+  <string name="ai_custom_protocol_openai">OpenAI 兼容</string>
+  <string name="ai_custom_protocol_claude">Claude 兼容</string>
+  <string name="ai_custom_models">模型列表（逗号分隔）</string>
+  <string name="ai_custom_models_hint">例如 gpt-4o, gpt-3.5-turbo</string>
+  <string name="ai_custom_save">保存</string>
+  <string name="ai_custom_fill_required">请填写名称、URL 和模型</string>
+  <string name="ai_custom_added">已添加提供商 \"%s\"</string>
 </resources>

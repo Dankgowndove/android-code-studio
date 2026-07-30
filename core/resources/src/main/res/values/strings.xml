@@ -1041,4 +1041,18 @@ This AI agent is designed to assist you in developing Android applications direc
   <string name="lsp_ok_button">OK</string>
   <string name="lsp_installation_failed_description">Failed to install update: %s</string>
   <string name="lsp_retry_button">Retry</string>
+
+  <!-- Custom AI Provider -->
+  <string name="ai_custom_provider_title">Add Custom Provider</string>
+  <string name="ai_custom_provider_name">Provider Name</string>
+  <string name="ai_custom_base_url">Base URL</string>
+  <string name="ai_custom_api_key">API Key</string>
+  <string name="ai_custom_protocol">Protocol</string>
+  <string name="ai_custom_protocol_openai">OpenAI Compatible</string>
+  <string name="ai_custom_protocol_claude">Claude Compatible</string>
+  <string name="ai_custom_models">Models (comma-separated)</string>
+  <string name="ai_custom_models_hint">e.g. gpt-4o, gpt-3.5-turbo</string>
+  <string name="ai_custom_save">Save</string>
+  <string name="ai_custom_fill_required">Please fill in name, URL, and models</string>
+  <string name="ai_custom_added">Provider \"%s\" added</string>
 </resources>
