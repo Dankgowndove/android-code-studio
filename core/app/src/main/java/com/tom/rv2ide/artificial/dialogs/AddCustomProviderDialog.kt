@@ -29,7 +29,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.tom.rv2ide.R
 import com.tom.rv2ide.artificial.agents.custom.CustomProviderConfig
 import com.tom.rv2ide.artificial.agents.custom.CustomProviderManager
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -161,7 +161,7 @@ class AddCustomProviderDialog : DialogFragment() {
                             }
                         }
                     }
-                    .post(json.toString().toRequestBody(okhttp3.MediaType.parse("application/json")!!))
+                    .post(json.toString().toRequestBody("application/json".toMediaType()))
                     .build()
 
                 val client = okhttp3.OkHttpClient.Builder()
