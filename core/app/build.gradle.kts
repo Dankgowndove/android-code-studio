@@ -97,7 +97,11 @@ android {
 
   buildTypes {
     debug {
-      signingConfig = signingConfigs.getByName("custom")
+      val signing_storePassword = System.getenv("SIGNING_STORE_PASSWORD") ?: ""
+      if (signing_storePassword.isNotEmpty()) {
+        signingConfig = signingConfigs.getByName("custom")
+      }
+      // else: use default Android debug keystore
     }
 
     release {

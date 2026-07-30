@@ -32,12 +32,24 @@ class Agents(ctx: Context) {
   private val PROVIDER_KEY = "ai_provider_name"
   
   private val openai_models = arrayOf(
+    // GPT-5.6 family (2026-07)
+    "gpt-5.6-sol",
+    "gpt-5.6-terra",
+    "gpt-5.6-luna",
+
+    // GPT-5.5 family (2026-05)
+    "gpt-5.5-instant",
+    "gpt-5.5-pro",
+    "gpt-chat-latest",
+    "gpt-image-2",
+
+    // GPT-5.1 family
     "gpt-5.1-codex-max",
     "gpt-5.1-codex",
     "gpt-5.1-codex-mini",
     "gpt-5-codex",
 
-    // GPT-5 family (text models)
+    // GPT-5 family
     "gpt-5-chat-latest",
     "gpt-5-2025-08-07",
     "gpt-5",
@@ -47,15 +59,13 @@ class Agents(ctx: Context) {
     "gpt-5-nano",
     "gpt-5-pro-2025-10-06",
     "gpt-5-pro",
-    "gpt-5-search-api",           // produces text, coding-capable even if optimized for search
-    "gpt-5-search-api-2025-10-14",
 
     // GPT-5.1 models
     "gpt-5.1-chat-latest",
     "gpt-5.1",
     "gpt-5.1-2025-11-13",
 
-    // GPT-4.1 family (all text)
+    // GPT-4.1 family
     "gpt-4.1-2025-04-14",
     "gpt-4.1",
     "gpt-4.1-mini-2025-04-14",
@@ -63,7 +73,7 @@ class Agents(ctx: Context) {
     "gpt-4.1-nano-2025-04-14",
     "gpt-4.1-nano",
 
-    // GPT-4o (all text/omni variants except audio, tts, transcribe)
+    // GPT-4o
     "gpt-4o",
     "gpt-4o-2024-05-13",
     "gpt-4o-mini-2024-07-18",
@@ -75,7 +85,7 @@ class Agents(ctx: Context) {
     "gpt-4o-mini-search-preview-2025-03-11",
     "gpt-4o-mini-search-preview",
 
-    // O-series (general purpose = coding-capable)
+    // O-series
     "o1-2024-12-17",
     "o1",
     "o3-mini",
@@ -85,64 +95,63 @@ class Agents(ctx: Context) {
     "o4-mini-2025-04-16",
     "o4-mini",
 
-    // GPT-3.5 (text models, all coding capable)
+    // GPT-3.5
     "gpt-3.5-turbo",
     "gpt-3.5-turbo-1106",
     "gpt-3.5-turbo-0125",
     "gpt-3.5-turbo-instruct",
     "gpt-3.5-turbo-instruct-0914",
-    "gpt-3.5-turbo-16k",
-
-    // Legacy general-purpose LLMs (still text)
-    "davinci-002",
-    "babbage-002"
+    "gpt-3.5-turbo-16k"
   )
   
   private val claude_models = arrayOf(
+    "claude-opus-5",
+    "claude-fable-5",
+    "claude-sonnet-5",
+    "claude-haiku-4-5",
+    "claude-opus-4-8",
     "claude-sonnet-4-5-20250929",
     "claude-haiku-4-5-20251001",
     "claude-opus-4-5-20251101",
     "claude-opus-4-1-20250805",
     "claude-opus-4-20250514",
     "claude-sonnet-4-20250514",
-    "claude-3-7-sonnet-20250219",
-    "claude-3-5-haiku-20241022",
-    "claude-3-haiku-20240307"
+    "claude-3-7-sonnet-20250219"
   )
   
   private val gemini_models = arrayOf(
+    "gemini-3.6-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-3.1-pro",
+    "gemini-3-flash",
     "gemini-3-pro-preview",
     "gemini-2.5-pro",
     "gemini-2.5-flash",
     "gemini-2.5-flash-lite",
     "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro"
+    "gemini-2.0-flash-lite"
   )
   
   private val deepseek_models = arrayOf(
-    "deepseek-chat",
-    "deepseek-reasoner",
-    "deepseek-coder",
-    "deepseek-v3",
-    "deepseek-r1",
-    "deepseek-r1-distill-qwen-32b",
-    "deepseek-r1-distill-llama-70b"
+    "deepseek-v4-flash",
+    "deepseek-v4-pro"
   )
   
   private val grok_models = arrayOf(
+    "grok-4.5",
+    "grok-4.3",
+    "grok-4.20",
+    "grok-4.1-fast",
+    "grok-4-heavy",
+    "grok-build-0.1",
+    "grok-imagine-image",
     "grok-4-1-fast-reasoning",
     "grok-4-1-fast-non-reasoning",
     "grok-code-fast-1",
-    "grok-4-fast-reasoning",
-    "grok-4-fast-non-reasoning",
     "grok-4-0709",
     "grok-3",
-    "grok-3-mini",
-    "grok-beta",
-    "grok-2",
-    "grok-2-mini"
+    "grok-3-mini"
   )
   
   private val localllm_models = arrayOf(
