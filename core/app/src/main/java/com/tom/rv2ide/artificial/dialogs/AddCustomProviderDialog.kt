@@ -178,13 +178,13 @@ class AddCustomProviderDialog : DialogFragment() {
                     if (response.isSuccessful) {
                         Toast.makeText(context, R.string.ai_custom_test_success, Toast.LENGTH_LONG).show()
                     } else {
-                        val errorBody = response.body()?.string() ?: "HTTP ${response.code()}"
-                        val msg = if (response.code() == 401 || response.code() == 403) {
-                            "Auth error (${response.code()}) - check API key"
-                        } else if (response.code() == 404) {
+                        val errorBody = response.body?.string() ?: "HTTP ${response.code}"
+                        val msg = if (response.code == 401 || response.code == 403) {
+                            "Auth error (${response.code}) - check API key"
+                        } else if (response.code == 404) {
                             "URL not found - check base URL"
                         } else {
-                            "HTTP ${response.code()}: $errorBody".take(100)
+                            "HTTP ${response.code}: $errorBody".take(100)
                         }
                         Toast.makeText(context, getString(R.string.ai_custom_test_failed, msg), Toast.LENGTH_LONG).show()
                     }
