@@ -209,12 +209,12 @@ class Agents(ctx: Context) {
     if (savedModel != null) return savedModel
     
     return when (getProvider()) {
-      "openai" -> "gpt-4o"
-      "gemini" -> "gemini-2.5-pro"
-      "claude" -> "claude-sonnet-4-20250514"
-      "deepseek" -> "deepseek-chat"
-      "grok" -> "grok-beta"
-      else -> "gemini-2.5-pro"
+      "openai" -> "gpt-5.6-terra"
+      "gemini" -> "gemini-3.6-flash"
+      "claude" -> "claude-sonnet-5"
+      "deepseek" -> "deepseek-v4-flash"
+      "grok" -> "grok-4.5"
+      else -> "gemini-3.6-flash"
     }
   }
   

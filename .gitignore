@@ -110,3 +110,6 @@ build.log
 
 external/logwire/build
 external/atc/build
+
+# AI-generated analysis files
+PROJECT_ANALYSIS.md

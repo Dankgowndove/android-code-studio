@@ -37,6 +37,8 @@ class AIPreferencesFragment(
     private lateinit var codeCompletionToggle: MaterialSwitch
     private lateinit var currentProviderText: MaterialTextView
     private lateinit var currentModelText: MaterialTextView
+    private var customProvidersSection: android.widget.LinearLayout? = null
+    private var customProvidersList: android.widget.LinearLayout? = null
     
     private val providerSwitchDialog by lazy { ProviderSwitchDialog(requireContext()) }
     
@@ -59,6 +61,7 @@ class AIPreferencesFragment(
         setupModelDropdown()
         setupToggles()
         updateCurrentStatus()
+        updateCustomProvidersList()
         startCompletionStateMonitoring()
     }
 
@@ -67,6 +70,7 @@ class AIPreferencesFragment(
         updateCurrentStatus()
         updateProviderDropdownSelection()
         updateModelDropdown()
+        updateCustomProvidersList()
         syncCodeCompletionToggle()
     }
     
@@ -82,6 +86,8 @@ class AIPreferencesFragment(
         codeCompletionToggle = view.findViewById(R.id.codeCompletionToggle)
         currentProviderText = view.findViewById(R.id.currentProviderText)
         currentModelText = view.findViewById(R.id.currentModelText)
+        customProvidersSection = view.findViewById(R.id.customProvidersSection)
+        customProvidersList = view.findViewById(R.id.customProvidersList)
     }
 
     private fun setupProviderDropdown() {
@@ -126,6 +132,7 @@ class AIPreferencesFragment(
             val dialog = AddCustomProviderDialog()
             dialog.onProviderAdded = {
                 setupProviderDropdown()
+                updateCustomProvidersList()
                 updateCurrentStatus()
             }
             dialog.show(parentFragmentManager, AddCustomProviderDialog.TAG)
@@ -345,6 +352,47 @@ class AIPreferencesFragment(
         }
         
         showSnackbar("Model switched to: $modelName")
+    }
+
+    private fun updateCustomProvidersList() {
+        val section = customProvidersSection ?: return
+        val list = customProvidersList ?: return
+        val providers = CustomProviderManager.getAll()
+
+        if (providers.isEmpty()) {
+            section.visibility = View.GONE
+            return
+        }
+
+        section.visibility = View.VISIBLE
+        list.removeAllViews()
+
+        for (config in providers) {
+            val itemView = LayoutInflater.from(context).inflate(
+                android.R.layout.simple_list_item_2, list, false
+            ) as android.widget.TwoLineListItem
+
+            itemView.text1.text = config.name
+            itemView.text2.text = "${config.protocol} · ${config.baseUrl}"
+
+            itemView.setOnLongClickListener {
+                android.app.AlertDialog.Builder(context)
+                    .setTitle(config.name)
+                    .setMessage(getString(R.string.ai_custom_remove) + "?")
+                    .setPositiveButton(getString(R.string.ai_custom_remove)) { _, _ ->
+                        CustomProviderManager.remove(config.id)
+                        CustomProviderManager.persist(requireContext())
+                        updateCustomProvidersList()
+                        updateProviderDropdownSelection()
+                        showSnackbar(getString(R.string.ai_custom_removed))
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+                true
+            }
+
+            list.addView(itemView)
+        }
     }
 
     private fun showSnackbar(message: String) {

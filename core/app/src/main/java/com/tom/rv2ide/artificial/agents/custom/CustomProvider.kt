@@ -201,7 +201,7 @@ class CustomProvider(
             put("stream", false)
         }
 
-        val url = normalizeUrl(baseUrl) + "/chat/completions"
+        val url = buildEndpointUrl("chat/completions")
         val request = Request.Builder()
             .url(url)
             .addHeader("Authorization", "Bearer $apiKey")
@@ -236,7 +236,7 @@ class CustomProvider(
             })
         }
 
-        val url = normalizeUrl(baseUrl) + "/messages"
+        val url = buildEndpointUrl("messages")
         val request = Request.Builder()
             .url(url)
             .addHeader("x-api-key", apiKey)
@@ -258,11 +258,29 @@ class CustomProvider(
             .getString("text")
     }
 
-    private fun normalizeUrl(url: String): String {
-        return url.trimEnd('/')
-            .replace(Regex("/v1$"), "")
-            .replace(Regex("/chat/completions$"), "")
-            .replace(Regex("/messages$"), "")
+    /**
+     * Builds the full API endpoint URL from the user-provided base URL.
+     * Handles various formats:
+     *   - "https://api.example.com/v1" → "https://api.example.com/v1/chat/completions"
+     *   - "https://api.example.com/v1/chat/completions" → used as-is
+     *   - "https://api.example.com/" → "https://api.example.com/v1/chat/completions"
+     *   - "https://api.example.com" → "https://api.example.com/v1/chat/completions"
+     */
+    private fun buildEndpointUrl(endpoint: String): String {
+        val base = baseUrl.trimEnd('/')
+
+        // If the URL already contains the exact endpoint, use it as-is
+        if (base.endsWith("/$endpoint")) return base
+
+        // If the URL ends with /v1 (or /v1/), append the endpoint
+        if (base.endsWith("/v1")) return "$base/$endpoint"
+
+        // If the URL already has a versioned path (e.g. /v1/something), append endpoint
+        val versionPattern = Regex(".*/v\\d+$")
+        if (versionPattern.matches(base)) return "$base/$endpoint"
+
+        // Default: append /v1/endpoint
+        return "$base/v1/$endpoint"
     }
 
     companion object {

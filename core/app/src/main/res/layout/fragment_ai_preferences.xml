@@ -43,7 +43,7 @@
             android:layout_height="48dp"
             android:layout_marginStart="8dp"
             android:contentDescription="@string/ai_custom_provider_title"
-            app:icon="@drawable/ic_init"
+            app:icon="@drawable/ic_add"
             style="@style/Widget.Material3.Button.OutlinedButton"
             app:iconPadding="0dp"
             android:insetTop="0dp"
@@ -68,6 +68,32 @@
                 android:textAppearance="?attr/textAppearanceBodyLarge" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Custom Providers List -->
+        <LinearLayout
+            android:id="@+id/customProvidersSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ai_custom_providers_list"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:id="@+id/customProvidersList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
