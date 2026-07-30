@@ -60,14 +60,14 @@ class Gemini : AIAgent {
               }
               
               override fun hasValidApiKey(): Boolean {
-                  val key = ApiKey.getApiKey()
-                  android.util.Log.d("Gemini", "hasValidApiKey check: ${key != null && key.isNotEmpty()}, key length: ${key?.length ?: 0}")
-                  return key != null && key.isNotEmpty()
+                  val key = ApiKey.getGeminiApiKey()
+                  android.util.Log.d("Gemini", "hasValidApiKey check: ${key.isNotEmpty()}, key length: ${key.length}")
+                  return key.isNotEmpty()
               }
               
               override fun getApiKey(): String? {
-                  val key = ApiKey.getApiKey()
-                  android.util.Log.d("Gemini", "getApiKey called, returning key of length: ${key?.length ?: 0}")
+                  val key = ApiKey.getGeminiApiKey()
+                  android.util.Log.d("Gemini", "getApiKey called, returning key of length: ${key.length}")
                   return key
               }
           })

@@ -19,7 +19,7 @@ package com.tom.rv2ide.artificial.agents.custom
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import org.json.JSONArray
 import org.json.JSONObject
 

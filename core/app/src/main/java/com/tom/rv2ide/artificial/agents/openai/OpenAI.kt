@@ -65,8 +65,8 @@ class OpenAI : AIAgent {
               
               override fun hasValidApiKey(): Boolean {
                   val key = ApiKey.getOpenAIApiKey()
-                  android.util.Log.d("OpenAI", "hasValidApiKey check: ${key != null && key.isNotEmpty()}, key length: ${key?.length ?: 0}")
-                  return key != null && key.isNotEmpty()
+                  android.util.Log.d("OpenAI", "hasValidApiKey check: ${key.isNotEmpty()}, key length: ${key.length}")
+                  return key.isNotEmpty()
               }
               
               override fun getApiKey(): String? {

@@ -19,7 +19,7 @@ package com.tom.rv2ide.artificial.agents
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 
 /**
  * @author Mohammed-baqer-null @ https://github.com/Mohammed-baqer-null
