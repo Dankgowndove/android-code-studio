@@ -82,6 +82,9 @@ jobs:
           echo "# Signing is handled by debug keystore when secrets are not set" >> local.properties
 
       - name: Assemble APK
+        env:
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: ./gradlew assemble${{ env.BUILD_TYPE }}
 
       - name: List APK files
