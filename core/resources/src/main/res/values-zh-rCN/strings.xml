@@ -1043,4 +1043,6 @@
   <string name="signing_remove_failed">移除签名配置失败</string>
   <string name="signing_remove_config">移除签名配置</string>
   <string name="keystore_unknown_alias">未知（请手动输入）</string>
+  <string name="signing_mode_direct">直接写入 build.gradle</string>
+  <string name="signing_mode_properties">写入 keystore.properties（推荐）</string>
 </resources>

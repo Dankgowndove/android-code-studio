@@ -24,6 +24,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -62,6 +64,7 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
     private lateinit var tvStatusTitle: TextView
     private lateinit var tvStatusDetails: TextView
     private lateinit var btnRemoveConfig: MaterialButton
+    private lateinit var rgInjectMode: RadioGroup
 
     // Form fields
     private lateinit var keystoreName: TextInputEditText
@@ -97,6 +100,7 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
         tvStatusTitle = view.findViewById(R.id.tv_status_title)
         tvStatusDetails = view.findViewById(R.id.tv_status_details)
         btnRemoveConfig = view.findViewById(R.id.btn_remove_config)
+        rgInjectMode = view.findViewById(R.id.rg_inject_mode)
 
         // Options buttons
         view.findViewById<Button>(R.id.btn_create_new).setOnClickListener {
@@ -365,7 +369,16 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
             keystoreFile.absolutePath
         }
 
-        val success = viewModel.injectSigningConfig(buildFile, relativePath, storePass, keyAlias, keyPass)
+        val useProps = rgInjectMode.checkedRadioButtonId == R.id.rb_properties
+        val success = viewModel.injectSigningConfig(
+            buildFile = buildFile,
+            keystorePath = relativePath,
+            storePassword = storePass,
+            keyAlias = keyAlias,
+            keyPassword = keyPass,
+            usePropertiesFile = useProps,
+            projectDir = projectDir
+        )
         if (success) {
             Toast.makeText(context, getString(R.string.signing_config_injected), Toast.LENGTH_LONG).show()
             showOptions()

@@ -1080,4 +1080,6 @@ This AI agent is designed to assist you in developing Android applications direc
   <string name="signing_remove_failed">Failed to remove signing configuration</string>
   <string name="signing_remove_config">Remove Signing Config</string>
   <string name="keystore_unknown_alias">Unknown (enter manually)</string>
+  <string name="signing_mode_direct">Write to build.gradle directly</string>
+  <string name="signing_mode_properties">Write to keystore.properties (Recommended)</string>
 </resources>

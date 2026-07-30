@@ -21,16 +21,8 @@ import com.tom.rv2ide.utils.GradleConfigWriter
 import com.tom.rv2ide.utils.KeystoreManager
 import java.io.File
 
-/**
- * ViewModel for signing configuration operations.
- *
- * @author AndroidIDE
- */
 class SigningViewModel : ViewModel() {
 
-    /**
-     * Creates a new JKS keystore file.
-     */
     fun createKeystore(
         projectDir: File,
         keystoreName: String,
@@ -52,16 +44,25 @@ class SigningViewModel : ViewModel() {
         )
     }
 
-    /**
-     * Injects signing configuration into the build file.
-     */
     fun injectSigningConfig(
         buildFile: File,
         keystorePath: String,
         storePassword: String,
         keyAlias: String,
-        keyPassword: String
+        keyPassword: String,
+        usePropertiesFile: Boolean = false,
+        projectDir: File? = null
     ): Boolean {
+        // If using properties file mode, create keystore.properties first
+        if (usePropertiesFile && projectDir != null) {
+            GradleConfigWriter.createKeystoreProperties(
+                projectDir = projectDir,
+                keystorePath = keystorePath,
+                storePassword = storePassword,
+                keyAlias = keyAlias,
+                keyPassword = keyPassword
+            )
+        }
         return GradleConfigWriter.injectSigningConfig(
             buildFile = buildFile,
             config = GradleConfigWriter.SigningConfig(
@@ -69,20 +70,15 @@ class SigningViewModel : ViewModel() {
                 storePassword = storePassword,
                 keyAlias = keyAlias,
                 keyPassword = keyPassword
-            )
+            ),
+            usePropertiesFile = usePropertiesFile
         )
     }
 
-    /**
-     * Checks if a build file already has signing configuration.
-     */
     fun hasSigningConfig(buildFile: File): Boolean {
         return GradleConfigWriter.hasSigningConfig(buildFile)
     }
 
-    /**
-     * Removes signing configuration from the build file.
-     */
     fun removeSigningConfig(buildFile: File): Boolean {
         return GradleConfigWriter.removeSigningConfig(buildFile)
     }
