@@ -20,6 +20,7 @@
 import com.tom.rv2ide.build.config.BuildConfig
 import com.tom.rv2ide.desugaring.utils.JavaIOReplacements.applyJavaIOReplacements
 import com.tom.rv2ide.plugins.AndroidIDEAssetsPlugin
+import java.io.FileInputStream
 import java.util.Properties
 
 /**
@@ -35,7 +36,7 @@ fun resolveSigningPassword(name: String): String {
         val propsFile = rootProject.file("local.properties")
         if (!propsFile.exists()) return ""
         val props = Properties()
-        props.load(java.io.FileInputStream(propsFile))
+        props.load(FileInputStream(propsFile))
         props.getProperty(name) ?: ""
     } catch (_: Exception) { "" }
 }
