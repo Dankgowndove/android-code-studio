@@ -46,7 +46,7 @@ class DeepSeek : AIAgent {
   private var currentAttemptCount = 0
   private val maxRetryAttempts = 3
   private var agents: Agents? = null
-  private var selectedModel: String = "deepseek-chat"
+  private var selectedModel: String = "deepseek-v4-flash"
   override val providerId = "deepseek"
   override val providerName = "DeepSeek"
 
@@ -74,10 +74,10 @@ class DeepSeek : AIAgent {
       try {
           this.apiKey = apiKey
           agents = Agents(context)
-          var selectedModel = agents?.getAgent() ?: "deepseek-chat"
+          var selectedModel = agents?.getAgent() ?: "deepseek-v4-flash"
           
           if (!agents!!.isValidModelForProvider(selectedModel, "deepseek")) {
-              selectedModel = "deepseek-chat"
+              selectedModel = "deepseek-v4-flash"
               agents?.setAgent(selectedModel)
               agents?.setProvider("deepseek")
           }

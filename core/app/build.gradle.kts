@@ -22,6 +22,24 @@ import com.tom.rv2ide.desugaring.utils.JavaIOReplacements.applyJavaIOReplacement
 import com.tom.rv2ide.plugins.AndroidIDEAssetsPlugin
 import java.util.Properties
 
+/**
+ * Resolves a signing credential from the CI secret env vars first,
+ * falling back to [name] in the root local.properties (gitignored).
+ * This lets local debug/release builds use the same release key as CI,
+ * so locally built APKs can be installed over CI builds without
+ * uninstalling first.
+ */
+fun resolveSigningPassword(name: String): String {
+    System.getenv(name)?.takeIf { it.isNotEmpty() }?.let { return it }
+    return try {
+        val propsFile = rootProject.file("local.properties")
+        if (!propsFile.exists()) return ""
+        val props = Properties()
+        props.load(java.io.FileInputStream(propsFile))
+        props.getProperty(name) ?: ""
+    } catch (_: Exception) { "" }
+}
+
 plugins {
   id("com.tom.rv2ide.core-app")
   id("com.android.application")
@@ -78,13 +96,10 @@ android {
           val keyStorePath = "${rootProject.projectDir}/signing/signing-key.jks"
           val keyStoreFile = file(keyStorePath)
           
-          val signing_storePassword = System.getenv("SIGNING_STORE_PASSWORD") ?: ""
-          val signing_keyPassword = System.getenv("SIGNING_KEY_PASSWORD") ?: ""
-          
           storeFile = keyStoreFile
-          storePassword = signing_storePassword
+          storePassword = resolveSigningPassword("SIGNING_STORE_PASSWORD")
           keyAlias = "androidcs"
-          keyPassword = signing_keyPassword
+          keyPassword = resolveSigningPassword("SIGNING_KEY_PASSWORD")
       }
   }
 
@@ -97,8 +112,7 @@ android {
 
   buildTypes {
     debug {
-      val signing_storePassword = System.getenv("SIGNING_STORE_PASSWORD") ?: ""
-      if (signing_storePassword.isNotEmpty()) {
+      if (resolveSigningPassword("SIGNING_STORE_PASSWORD").isNotEmpty()) {
         signingConfig = signingConfigs.getByName("custom")
       }
       // else: use default Android debug keystore

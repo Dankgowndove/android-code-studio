@@ -197,6 +197,7 @@ class Agents(ctx: Context) {
           name in claude_models -> "claude"
           name in deepseek_models -> "deepseek"
           name in grok_models -> "grok"
+          name in localllm_models -> "localllm"
           else -> sp.getString(PROVIDER_KEY, "gemini") ?: "gemini"
       }
       

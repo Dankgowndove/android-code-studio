@@ -18,6 +18,7 @@
 package com.tom.rv2ide.artificial.agents.custom
 
 import android.content.Context
+import androidx.preference.PreferenceManager
 import com.tom.rv2ide.artificial.agents.AIAgent
 import com.tom.rv2ide.artificial.agents.AIAgentRegistry
 import com.tom.rv2ide.artificial.agents.ModificationAttempt
@@ -66,8 +67,10 @@ class CustomProvider(
     private var currentAttemptCount = 0
     private val maxRetryAttempts = 3
     private var initialized = false
+    private var appContext: Context? = null
 
     override fun initialize(apiKey: String, context: Context) {
+        appContext = context.applicationContext
         fileWriter = AIFileWriter(context)
         initialized = true
     }
@@ -141,7 +144,7 @@ class CustomProvider(
     ): Result<String> = withContext(Dispatchers.IO) {
         try {
             val fullPrompt = buildFullPrompt(prompt, context)
-            val modelName = modelList.firstOrNull() ?: "default"
+            val modelName = resolveSelectedModel()
 
             val response = when (protocol) {
                 "openai" -> callOpenAICompatibleAPI(fullPrompt, modelName)
@@ -164,6 +167,22 @@ class CustomProvider(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    /**
+     * Resolves the model to use for this request.
+     * Prefers the model the user selected in AI settings ("ai_agent_model_name"),
+     * falling back to the first model configured for this custom provider.
+     */
+    private fun resolveSelectedModel(): String {
+        val selected = appContext?.let { ctx ->
+            PreferenceManager.getDefaultSharedPreferences(ctx)
+                .getString("ai_agent_model_name", null)
+        }
+        if (!selected.isNullOrBlank() && selected in modelList) {
+            return selected
+        }
+        return modelList.firstOrNull() ?: "default"
     }
 
     private fun buildFullPrompt(prompt: String, context: String?): String {

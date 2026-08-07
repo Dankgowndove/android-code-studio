@@ -46,7 +46,7 @@ class Grok : AIAgent {
   private var currentAttemptCount = 0
   private val maxRetryAttempts = 3
   private var agents: Agents? = null
-  private var selectedModel: String = "grok-beta"
+  private var selectedModel: String = "grok-4.5"
   override val providerId = "grok"
   override val providerName = "xAI Grok"
 
@@ -74,10 +74,10 @@ class Grok : AIAgent {
       try {
           this.apiKey = apiKey
           agents = Agents(context)
-          var selectedModel = agents?.getAgent() ?: "grok-beta"
+          var selectedModel = agents?.getAgent() ?: "grok-4.5"
           
           if (!agents!!.isValidModelForProvider(selectedModel, "grok")) {
-              selectedModel = "grok-beta"
+              selectedModel = "grok-4.5"
               agents?.setAgent(selectedModel)
               agents?.setProvider("grok")
           }

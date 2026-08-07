@@ -52,7 +52,7 @@ class OpenAI : AIAgent {
   private var currentAttemptCount = 0
   private val maxRetryAttempts = 3
   private var agents: Agents? = null
-  private var selectedModel: String = "gpt-4o"
+  private var selectedModel: String = "gpt-5.6-terra"
   override val providerId = "openai"
   override val providerName = "OpenAI"
 
@@ -82,11 +82,11 @@ class OpenAI : AIAgent {
       try {
           this.apiKey = apiKey
           agents = Agents(context)
-          var selectedModel = agents?.getAgent() ?: "gpt-4o"
+          var selectedModel = agents?.getAgent() ?: "gpt-5.6-terra"
           
           // Ensure we're using a valid OpenAI model
           if (!agents!!.isValidModelForProvider(selectedModel, "openai")) {
-              selectedModel = "gpt-4o"
+              selectedModel = "gpt-5.6-terra"
               agents?.setAgent(selectedModel)
               agents?.setProvider("openai")
           }

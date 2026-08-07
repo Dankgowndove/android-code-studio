@@ -109,6 +109,7 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
             formView.findViewById<TextView>(R.id.form_title).apply {
                 text = getString(R.string.create_new_keystore)
             }
+            setFormMode(false)
             showForm()
         }
 
@@ -216,7 +217,18 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
         keystorePassword.setText("")
         keyPassword.setText("")
 
-        // Hide DN fields and validity for import (not needed)
+        // Update form to import mode
+        setFormMode(true)
+
+        showForm()
+    }
+
+    /**
+     * Toggles the form between "create" and "import" modes.
+     * In import mode the DN / validity fields are unnecessary so they are hidden,
+     * and the primary button text changes accordingly.
+     */
+    private fun setFormMode(importMode: Boolean) {
         listOfNotNull(
             view?.findViewById<View>(R.id.dn_section_header),
             (dnameCn.parent.parent as? View),
@@ -226,14 +238,13 @@ class SigningConfigFragment : Fragment(R.layout.fragment_signing_config) {
             (dnameSt.parent.parent as? View),
             (dnameC.parent.parent as? View),
             (validity.parent.parent as? View)
-        ).forEach { it.visibility = View.GONE }
+        ).forEach { it.visibility = if (importMode) View.GONE else View.VISIBLE }
 
-        // Update create button text for import
-        view?.findViewById<Button>(R.id.btn_create)?.apply {
-            text = getString(R.string.signing_btn_import)
-        }
-
-        showForm()
+        isImportMode = importMode
+        view?.findViewById<Button>(R.id.btn_create)?.setText(
+            if (importMode) getString(R.string.signing_btn_import)
+            else getString(R.string.signing_btn_create)
+        )
     }
 
     private fun getKeystoreNameFromUri(uri: Uri): String {
