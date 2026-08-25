@@ -126,7 +126,8 @@ class Agents(ctx: Context) {
   private val deepseek_models = arrayOf(
     // DeepSeek V4 (current 2026)
     "deepseek-v4-flash",
-    "deepseek-v4-pro"
+    "deepseek-v4-pro",
+    "deepseek-v4-flash-vision-exp"  // 多模态视觉模型 (2026-08-21)
   )
   
   private val grok_models = arrayOf(
