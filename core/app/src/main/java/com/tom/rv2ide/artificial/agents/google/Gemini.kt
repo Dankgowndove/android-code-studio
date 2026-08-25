@@ -77,11 +77,11 @@ class Gemini : AIAgent {
   override fun initialize(apiKey: String, context: Context) {
       try {
           agents = Agents(context)
-          var selectedModel = agents?.getAgent() ?: "gemini-3.6-flash"
-          
+          var selectedModel = agents?.getAgent() ?: "gemini-3.7-flash"
+
           // Ensure we're using a valid Gemini model
           if (!agents!!.isValidModelForProvider(selectedModel, "gemini")) {
-              selectedModel = "gemini-3.6-flash"
+              selectedModel = "gemini-3.7-flash"
               agents?.setAgent(selectedModel)
               agents?.setProvider("gemini")
           }

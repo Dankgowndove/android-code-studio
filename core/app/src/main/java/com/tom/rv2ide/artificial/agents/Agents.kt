@@ -32,124 +32,115 @@ class Agents(ctx: Context) {
   private val PROVIDER_KEY = "ai_provider_name"
   
   private val openai_models = arrayOf(
-    // GPT-5.6 family (2026-07)
+    // GPT-5.6 family (current 2026)
     "gpt-5.6-sol",
     "gpt-5.6-terra",
     "gpt-5.6-luna",
 
-    // GPT-5.5 family (2026-05)
-    "gpt-5.5-instant",
+    // GPT-5.5 (2026-04)
+    "gpt-5.5",
     "gpt-5.5-pro",
-    "gpt-chat-latest",
-    "gpt-image-2",
 
-    // GPT-5.1 family
+    // GPT-5.4 family
+    "gpt-5.4",
+    "gpt-5.4-mini",
+
+    // GPT-5.3 Codex
+    "gpt-5.3-codex",
+    "gpt-5.3-codex-spark",
+
+    // GPT-5.2 Codex (recommended for API key workflows)
+    "gpt-5.2-codex",
+
+    // GPT-5.1 family (legacy)
     "gpt-5.1-codex-max",
     "gpt-5.1-codex",
     "gpt-5.1-codex-mini",
-    "gpt-5-codex",
 
     // GPT-5 family
-    "gpt-5-chat-latest",
-    "gpt-5-2025-08-07",
     "gpt-5",
-    "gpt-5-mini-2025-08-07",
     "gpt-5-mini",
-    "gpt-5-nano-2025-08-07",
     "gpt-5-nano",
-    "gpt-5-pro-2025-10-06",
     "gpt-5-pro",
-
-    // GPT-5.1 models
-    "gpt-5.1-chat-latest",
-    "gpt-5.1",
-    "gpt-5.1-2025-11-13",
+    "gpt-5-codex",
 
     // GPT-4.1 family
-    "gpt-4.1-2025-04-14",
     "gpt-4.1",
-    "gpt-4.1-mini-2025-04-14",
     "gpt-4.1-mini",
-    "gpt-4.1-nano-2025-04-14",
     "gpt-4.1-nano",
 
     // GPT-4o
     "gpt-4o",
-    "gpt-4o-2024-05-13",
-    "gpt-4o-mini-2024-07-18",
     "gpt-4o-mini",
-    "gpt-4o-2024-08-06",
-    "gpt-4o-2024-11-20",
-    "gpt-4o-search-preview-2025-03-11",
-    "gpt-4o-search-preview",
-    "gpt-4o-mini-search-preview-2025-03-11",
-    "gpt-4o-mini-search-preview",
 
-    // O-series
-    "o1-2024-12-17",
+    // o-series (some may be deprecated in API)
     "o1",
-    "o3-mini",
-    "o3-mini-2025-01-31",
-    "o3-2025-04-16",
     "o3",
-    "o4-mini-2025-04-16",
+    "o3-mini",
     "o4-mini",
 
-    // GPT-3.5
-    "gpt-3.5-turbo",
-    "gpt-3.5-turbo-1106",
-    "gpt-3.5-turbo-0125",
-    "gpt-3.5-turbo-instruct",
-    "gpt-3.5-turbo-instruct-0914",
-    "gpt-3.5-turbo-16k"
+    // Image generation
+    "gpt-image-2",
+
+    // Legacy (for compatibility)
+    "gpt-3.5-turbo"
   )
   
   private val claude_models = arrayOf(
-    "claude-opus-5",
+    // Claude 5 family (2026)
     "claude-fable-5",
+    "claude-opus-5",
     "claude-sonnet-5",
-    "claude-haiku-4-5",
-    "claude-opus-4-8",
-    "claude-sonnet-4-5-20250929",
-    "claude-haiku-4-5-20251001",
-    "claude-opus-4-5-20251101",
-    "claude-opus-4-1-20250805",
-    "claude-opus-4-20250514",
-    "claude-sonnet-4-20250514",
+    "claude-haiku-4.5",
+
+    // Claude 4 family
+    "claude-opus-4.8",
+    "claude-opus-4.7",
+    "claude-sonnet-4.6",
+    "claude-sonnet-4.5",
+
+    // Legacy
     "claude-3-7-sonnet-20250219"
   )
   
   private val gemini_models = arrayOf(
+    // Gemini 3.x family (2026)
+    "gemini-3.7-flash",
     "gemini-3.6-flash",
-    "gemini-3.5-flash-lite",
     "gemini-3.5-flash",
-    "gemini-3.1-pro",
-    "gemini-3-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-flash-lite",
+
+    // Gemini 3 Pro (preview/deprecated)
     "gemini-3-pro-preview",
+
+    // Gemini 2.5 family
     "gemini-2.5-pro",
     "gemini-2.5-flash",
     "gemini-2.5-flash-lite",
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-lite"
+
+    // Legacy
+    "gemini-2.0-flash"
   )
   
   private val deepseek_models = arrayOf(
+    // DeepSeek V4 (current 2026)
     "deepseek-v4-flash",
     "deepseek-v4-pro"
   )
   
   private val grok_models = arrayOf(
+    // Grok 4.x family (2026)
+    "grok-4.6",
     "grok-4.5",
     "grok-4.3",
     "grok-4.20",
-    "grok-4.1-fast",
-    "grok-4-heavy",
+    "grok-4.20-0309-reasoning",
+    "grok-4.20-0309-non-reasoning",
+    "grok-4.20-multi-agent-0309",
     "grok-build-0.1",
-    "grok-imagine-image",
-    "grok-4-1-fast-reasoning",
-    "grok-4-1-fast-non-reasoning",
-    "grok-code-fast-1",
-    "grok-4-0709",
+
+    // Legacy
     "grok-3",
     "grok-3-mini"
   )
@@ -211,11 +202,11 @@ class Agents(ctx: Context) {
     
     return when (getProvider()) {
       "openai" -> "gpt-5.6-terra"
-      "gemini" -> "gemini-3.6-flash"
+      "gemini" -> "gemini-3.7-flash"
       "claude" -> "claude-sonnet-5"
       "deepseek" -> "deepseek-v4-flash"
-      "grok" -> "grok-4.5"
-      else -> "gemini-3.6-flash"
+      "grok" -> "grok-4.6"
+      else -> "gemini-3.7-flash"
     }
   }
   
