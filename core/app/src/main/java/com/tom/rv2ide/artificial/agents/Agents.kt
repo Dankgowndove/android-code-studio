@@ -32,7 +32,7 @@ class Agents(ctx: Context) {
   private val PROVIDER_KEY = "ai_provider_name"
   
   private val openai_models = arrayOf(
-    // GPT-5.6 family (current 2026)
+    // GPT-5.6 family (current 2026-07)
     "gpt-5.6-sol",
     "gpt-5.6-terra",
     "gpt-5.6-luna",
@@ -40,6 +40,7 @@ class Agents(ctx: Context) {
     // GPT-5.5 (2026-04)
     "gpt-5.5",
     "gpt-5.5-pro",
+    "gpt-5.5-pro-2026-04-23",
 
     // GPT-5.4 family
     "gpt-5.4",
@@ -47,15 +48,9 @@ class Agents(ctx: Context) {
 
     // GPT-5.3 Codex
     "gpt-5.3-codex",
-    "gpt-5.3-codex-spark",
 
     // GPT-5.2 Codex (recommended for API key workflows)
     "gpt-5.2-codex",
-
-    // GPT-5.1 family (legacy)
-    "gpt-5.1-codex-max",
-    "gpt-5.1-codex",
-    "gpt-5.1-codex-mini",
 
     // GPT-5 family
     "gpt-5",
@@ -73,17 +68,14 @@ class Agents(ctx: Context) {
     "gpt-4o",
     "gpt-4o-mini",
 
-    // o-series (some may be deprecated in API)
+    // o-series reasoning models
     "o1",
     "o3",
     "o3-mini",
     "o4-mini",
 
     // Image generation
-    "gpt-image-2",
-
-    // Legacy (for compatibility)
-    "gpt-3.5-turbo"
+    "gpt-image-2"
   )
   
   private val claude_models = arrayOf(
@@ -93,14 +85,11 @@ class Agents(ctx: Context) {
     "claude-sonnet-5",
     "claude-haiku-4.5",
 
-    // Claude 4 family
+    // Claude 4 family (still active)
     "claude-opus-4.8",
     "claude-opus-4.7",
     "claude-sonnet-4.6",
-    "claude-sonnet-4.5",
-
-    // Legacy
-    "claude-3-7-sonnet-20250219"
+    "claude-sonnet-4.5"
   )
   
   private val gemini_models = arrayOf(
@@ -111,16 +100,10 @@ class Agents(ctx: Context) {
     "gemini-3.5-flash-lite",
     "gemini-3.1-flash-lite",
 
-    // Gemini 3 Pro (preview/deprecated)
-    "gemini-3-pro-preview",
-
-    // Gemini 2.5 family
+    // Gemini 2.5 family (deprecated Oct 2026)
     "gemini-2.5-pro",
     "gemini-2.5-flash",
-    "gemini-2.5-flash-lite",
-
-    // Legacy
-    "gemini-2.0-flash"
+    "gemini-2.5-flash-lite"
   )
   
   private val deepseek_models = arrayOf(
@@ -135,15 +118,7 @@ class Agents(ctx: Context) {
     "grok-4.6",
     "grok-4.5",
     "grok-4.3",
-    "grok-4.20",
-    "grok-4.20-0309-reasoning",
-    "grok-4.20-0309-non-reasoning",
-    "grok-4.20-multi-agent-0309",
-    "grok-build-0.1",
-
-    // Legacy
-    "grok-3",
-    "grok-3-mini"
+    "grok-build-0.1"
   )
   
   private val localllm_models = arrayOf(
