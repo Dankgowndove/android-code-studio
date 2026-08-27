@@ -25,6 +25,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.tom.rv2ide.fragments.DiagnosticsListFragment;
 import com.tom.rv2ide.fragments.SearchResultFragment;
+import com.tom.rv2ide.fragments.SigningConfigFragment;
 import com.termux.app.TerminalFragment;
 import com.tom.rv2ide.fragments.output.AppLogFragment;
 import com.tom.rv2ide.fragments.output.BuildOutputFragment;
@@ -67,6 +68,11 @@ public class EditorBottomSheetTabAdapter extends FragmentStateAdapter {
         new Tab(
             fragmentActivity.getString(R.string.view_search_results),
             SearchResultFragment.class,
+            ++index));
+    this.fragments.add(
+        new Tab(
+            fragmentActivity.getString(R.string.title_signing),
+            SigningConfigFragment.class,
             ++index));
   }
 

@@ -135,7 +135,14 @@ abstract class ModuleProject(
     for (path in paths) {
       // Use 'getCanonicalFile' just to be sure that caches are stored with correct keys
       // See JavacFileManager.getContainer(Path) for more details
-      CacheFSInfoSingleton.cache(CacheFSInfoSingleton.getCanonicalFile(path.toPath()))
+      try {
+        CacheFSInfoSingleton.cache(CacheFSInfoSingleton.getCanonicalFile(path.toPath()))
+      } catch (e: NoClassDefFoundError) {
+        // CacheFSInfo may not be available at runtime on all Android versions.
+        // This is non-critical for project setup; skip caching gracefully.
+        log.debug("CacheFSInfo not available, skipping classpath cache", e)
+        break
+      }
     }
 
     val topLevelClasses = JarFsClasspathReader().listClasses(paths).filter { it.isTopLevel }

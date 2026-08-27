@@ -78,10 +78,8 @@ jobs:
 
       - name: Create local.properties
         run: |
-          echo "signing.storeFile=signing/signing-key.jks" >> local.properties
-          echo "signing.storePassword=${{ secrets.SIGNING_SK_PASSWORD }}" >> local.properties
-          echo "signing.keyAlias=androidcs" >> local.properties
-          echo "signing.keyPassword=${{ secrets.SIGNING_SK_PASSWORD }}" >> local.properties
+          echo "# Local properties for CI build" > local.properties
+          echo "# Signing is handled by debug keystore when secrets are not set" >> local.properties
 
       - name: Assemble APK
         env:

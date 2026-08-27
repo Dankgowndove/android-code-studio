@@ -52,7 +52,7 @@ class OpenAI : AIAgent {
   private var currentAttemptCount = 0
   private val maxRetryAttempts = 3
   private var agents: Agents? = null
-  private var selectedModel: String = "gpt-4o"
+  private var selectedModel: String = "gpt-5.6-terra"
   override val providerId = "openai"
   override val providerName = "OpenAI"
 
@@ -65,8 +65,8 @@ class OpenAI : AIAgent {
               
               override fun hasValidApiKey(): Boolean {
                   val key = ApiKey.getOpenAIApiKey()
-                  android.util.Log.d("OpenAI", "hasValidApiKey check: ${key != null && key.isNotEmpty()}, key length: ${key?.length ?: 0}")
-                  return key != null && key.isNotEmpty()
+                  android.util.Log.d("OpenAI", "hasValidApiKey check: ${key.isNotEmpty()}, key length: ${key.length}")
+                  return key.isNotEmpty()
               }
               
               override fun getApiKey(): String? {
@@ -82,11 +82,11 @@ class OpenAI : AIAgent {
       try {
           this.apiKey = apiKey
           agents = Agents(context)
-          var selectedModel = agents?.getAgent() ?: "gpt-4o"
+          var selectedModel = agents?.getAgent() ?: "gpt-5.6-terra"
           
           // Ensure we're using a valid OpenAI model
           if (!agents!!.isValidModelForProvider(selectedModel, "openai")) {
-              selectedModel = "gpt-4o"
+              selectedModel = "gpt-5.6-terra"
               agents?.setAgent(selectedModel)
               agents?.setProvider("openai")
           }

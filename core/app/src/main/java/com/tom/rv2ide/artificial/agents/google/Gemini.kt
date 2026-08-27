@@ -60,14 +60,14 @@ class Gemini : AIAgent {
               }
               
               override fun hasValidApiKey(): Boolean {
-                  val key = ApiKey.getApiKey()
-                  android.util.Log.d("Gemini", "hasValidApiKey check: ${key != null && key.isNotEmpty()}, key length: ${key?.length ?: 0}")
-                  return key != null && key.isNotEmpty()
+                  val key = ApiKey.getGeminiApiKey()
+                  android.util.Log.d("Gemini", "hasValidApiKey check: ${key.isNotEmpty()}, key length: ${key.length}")
+                  return key.isNotEmpty()
               }
               
               override fun getApiKey(): String? {
-                  val key = ApiKey.getApiKey()
-                  android.util.Log.d("Gemini", "getApiKey called, returning key of length: ${key?.length ?: 0}")
+                  val key = ApiKey.getGeminiApiKey()
+                  android.util.Log.d("Gemini", "getApiKey called, returning key of length: ${key.length}")
                   return key
               }
           })
@@ -77,11 +77,11 @@ class Gemini : AIAgent {
   override fun initialize(apiKey: String, context: Context) {
       try {
           agents = Agents(context)
-          var selectedModel = agents?.getAgent() ?: "gemini-2.5-pro"
-          
+          var selectedModel = agents?.getAgent() ?: "gemini-3.7-flash"
+
           // Ensure we're using a valid Gemini model
           if (!agents!!.isValidModelForProvider(selectedModel, "gemini")) {
-              selectedModel = "gemini-2.5-pro"
+              selectedModel = "gemini-3.7-flash"
               agents?.setAgent(selectedModel)
               agents?.setProvider("gemini")
           }

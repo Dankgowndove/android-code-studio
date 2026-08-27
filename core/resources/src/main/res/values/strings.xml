@@ -1041,4 +1041,64 @@ This AI agent is designed to assist you in developing Android applications direc
   <string name="lsp_ok_button">OK</string>
   <string name="lsp_installation_failed_description">Failed to install update: %s</string>
   <string name="lsp_retry_button">Retry</string>
-</resources>
+
+<!-- Custom AI Provider -->
+  <string name="ai_custom_provider_title">Add Custom Provider</string>
+  <string name="ai_custom_provider_name">Provider Name</string>
+  <string name="ai_custom_base_url">Base URL</string>
+  <string name="ai_custom_api_key">API Key</string>
+  <string name="ai_custom_protocol">Protocol</string>
+  <string name="ai_custom_protocol_openai">OpenAI Compatible</string>
+  <string name="ai_custom_protocol_claude">Claude Compatible</string>
+  <string name="ai_custom_models">Models (comma-separated)</string>
+  <string name="ai_custom_models_hint">e.g. gpt-4o, gpt-3.5-turbo</string>
+  <string name="ai_custom_save">Save</string>
+  <string name="ai_custom_fill_required">Please fill in name, URL, and models</string>
+  <string name="ai_custom_added">Provider \"%s\" added</string>
+<!-- Signing Configuration -->
+  <string name="title_signing">Signing</string>
+  <string name="title_signing_config">Signing Configuration</string>
+  <string name="signing_description">Create or import a keystore to sign your APK for release builds.</string>
+  <string name="create_new_keystore">Create New Keystore</string>
+  <string name="import_keystore">Import Existing Keystore</string>
+  <string name="import_keystore_todo">Import keystore — coming soon</string>
+  <string name="keystore_name">Keystore File Name</string>
+  <string name="keystore_alias_label">Alias</string>
+  <string name="keystore_password">Keystore Password</string>
+  <string name="key_password">Key Password</string>
+  <string name="cert_validity">Validity (days)</string>
+  <string name="cert_dname_cn">Common Name (CN)</string>
+  <string name="cert_dname_o">Organization (O)</string>
+  <string name="cert_dname_ou">Organizational Unit (OU)</string>
+  <string name="cert_dname_l">City (L)</string>
+  <string name="cert_dname_st">State/Province (ST)</string>
+  <string name="cert_dname_c">Country Code (C)</string>
+  <string name="signing_config_injected">Signing configuration has been written to build file</string>
+  <string name="no_signing_config">No signing configuration set</string>
+  <string name="signing_btn_create">Create</string>
+  <string name="signing_import_success">Keystore imported successfully</string>
+  <string name="signing_create_success">Keystore created successfully</string>
+  <string name="signing_error">An error occurred: %s</string>
+  <string name="signing_config_exists">A signing configuration already exists</string>
+  <string name="signing_config_current">Current configuration:</string>
+  <string name="signing_fill_required">Please fill in all required fields</string>
+  <string name="signing_cn_required">Common Name (CN) is required</string>
+  <string name="signing_no_project">Could not determine project directory</string>
+  <string name="signing_no_build_file">Could not find build.gradle file</string>
+  <string name="signing_inject_failed">Failed to inject signing configuration</string>
+  <string name="signing_btn_import">Import</string>
+  <string name="signing_no_file_selected">No file selected</string>
+  <string name="signing_config_active">Your project has an active signing configuration.</string>
+  <string name="signing_config_removed">Signing configuration removed</string>
+  <string name="signing_remove_failed">Failed to remove signing configuration</string>
+  <string name="signing_remove_config">Remove Signing Config</string>
+  <string name="keystore_unknown_alias">Unknown (enter manually)</string>
+  <string name="signing_mode_direct">Write to build.gradle directly</string>
+  <string name="signing_mode_properties">Write to keystore.properties (Recommended)</string>
+
+<string name="ai_custom_providers_list">Custom Providers</string>
+  <string name="ai_custom_test_connection">Test Connection</string>
+  <string name="ai_custom_test_success">Connection successful!</string>
+  <string name="ai_custom_test_failed">Connection failed: %s</string>
+  <string name="ai_custom_remove">Remove</string>
+  <string name="ai_custom_removed">Provider removed</string></resources>

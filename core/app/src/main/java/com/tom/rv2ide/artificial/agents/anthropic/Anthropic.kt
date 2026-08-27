@@ -50,7 +50,7 @@ class Anthropic : AIAgent {
   private var currentAttemptCount = 0
   private val maxRetryAttempts = 3
   private var agents: Agents? = null
-  private var selectedModel: String = "claude-sonnet-4-20250514"
+  private var selectedModel: String = "claude-sonnet-5"
   override val providerId = "claude"
   override val providerName = "Anthropic Claude"
 
@@ -78,10 +78,10 @@ class Anthropic : AIAgent {
       try {
           this.apiKey = apiKey
           agents = Agents(context)
-          var selectedModel = agents?.getAgent() ?: "claude-sonnet-4-20250514"
+          var selectedModel = agents?.getAgent() ?: "claude-sonnet-5"
           
           if (!agents!!.isValidModelForProvider(selectedModel, "claude")) {
-              selectedModel = "claude-sonnet-4-20250514"
+              selectedModel = "claude-sonnet-5"
               agents?.setAgent(selectedModel)
               agents?.setProvider("claude")
           }
