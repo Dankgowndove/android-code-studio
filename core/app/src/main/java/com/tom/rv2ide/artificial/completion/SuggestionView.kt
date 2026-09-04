@@ -41,7 +41,6 @@ class SuggestionView @JvmOverloads constructor(
         translationZ = 12f
         
         binding.root.setOnClickListener {
-            android.util.Log.d("SuggestionView", "CLICKED!!!")
             onSuggestionClickListener?.invoke()
         }
     }
