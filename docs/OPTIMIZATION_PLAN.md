@@ -35,6 +35,7 @@
   - 先用 `--configuration-cache` 试运行 + `--configuration-cache-problems=warn` 观察问题清单
 - [ ] `android.nonTransitiveRClass=true`（`gradle.properties:25` 带 TODO 注释）：需同步清理跨模块直接 `R.` 引用，逐步验证
 - [ ] 审计 `composite-builds/` 中构建期依赖（JDT / javac 等）是否需要随版本升级
+- [ ] CI 维护（2026-09-05 构建告警）：`actions/checkout|cache|setup-java|upload-artifact@v4` 升级到 v5（Node 20 已弃用）、`setup-java` 的 `adopt` 发行版改 `temurin`、`styfle/cancel-workflow-action` 升级；arm64/v7a 产物路径正常，universal/x86_64 路径无产物属预期（可移除避免告警）
 
 ### P2 — 结构去重（收益最大、风险中等，建议单独立项）
 
