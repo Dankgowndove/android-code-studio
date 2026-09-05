@@ -959,6 +959,8 @@
   <string name="msg_cannot_create_terminal_session">无法创建终端会话</string>
   <string name="action_auto_install">自动安装</string>
   <string name="action_manual_install">手动安装</string>
+  <string name="action_mirror_install">国内镜像加速</string>
+  <string name="action_mirror_install_desc">应用内下载（如应用更新）优先走国内镜像，适合中国大陆网络环境。</string>
   <string name="hint_android_sdk_version">Android SDK 版本</string>
   <string name="hint_android_ndk_version">Android NDK 版本</string>
   <string name="hin_jdk_version">JDK 版本</string>

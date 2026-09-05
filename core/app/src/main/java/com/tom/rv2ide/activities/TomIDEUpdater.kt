@@ -31,9 +31,8 @@ import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.tom.rv2ide.resources.R
-import java.io.*
-import java.net.HttpURLConnection
-import java.net.URL
+import com.tom.rv2ide.utils.DownloadMirrors
+import java.io.File
 import kotlinx.coroutines.*
 import org.json.JSONObject
 
@@ -77,24 +76,12 @@ class TomIDEUpdater(private val context: Context) {
 
   private suspend fun fetchUpdateInfo(): UpdateInfo? {
     return withContext(Dispatchers.IO) {
-      try {
-        val url = URL(UPDATE_JSON_URL)
-        val connection = url.openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
-        connection.connectTimeout = 10000
-        connection.readTimeout = 10000
-
-        val responseCode = connection.responseCode
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-          val response = connection.inputStream.bufferedReader().use { it.readText() }
-          parseUpdateInfo(response)
-        } else {
-          Log.e(TAG, context.getString(R.string.updater_http_error, responseCode))
-          null
-        }
-      } catch (e: Exception) {
-        Log.e(TAG, context.getString(R.string.updater_fetch_error), e)
+      val response = DownloadMirrors.fetchText(context, UPDATE_JSON_URL)
+      if (response == null) {
+        Log.e(TAG, context.getString(R.string.updater_fetch_error))
         null
+      } else {
+        parseUpdateInfo(response)
       }
     }
   }
@@ -129,23 +116,11 @@ class TomIDEUpdater(private val context: Context) {
 
   private suspend fun fetchChangelog(changelogUrl: String): String {
     return withContext(Dispatchers.IO) {
-      try {
-        val url = URL(changelogUrl)
-        val connection = url.openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
-        connection.connectTimeout = 10000
-        connection.readTimeout = 10000
-
-        val responseCode = connection.responseCode
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-          val markdown = connection.inputStream.bufferedReader().use { it.readText() }
-          parseMarkdownToPlainText(markdown)
-        } else {
-          context.getString(R.string.updater_changelog_failed)
-        }
-      } catch (e: Exception) {
-        Log.e(TAG, context.getString(R.string.updater_changelog_error), e)
+      val markdown = DownloadMirrors.fetchText(context, changelogUrl)
+      if (markdown == null) {
         context.getString(R.string.updater_changelog_failed)
+      } else {
+        parseMarkdownToPlainText(markdown)
       }
     }
   }
@@ -357,37 +332,13 @@ class TomIDEUpdater(private val context: Context) {
 
   private suspend fun downloadApk(apkUrl: String): File? {
     return withContext(Dispatchers.IO) {
-      try {
-        val url = URL(apkUrl)
-        val connection = url.openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
-        connection.connectTimeout = 30000
-        connection.readTimeout = 30000
+      // Create temp file
+      val apkFile = File(context.getExternalFilesDir(null), "update.apk")
 
-        val responseCode = connection.responseCode
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-          Log.e(TAG, context.getString(R.string.updater_http_error, responseCode))
-          return@withContext null
-        }
-
-        val contentLength = connection.contentLength
-        val inputStream = connection.inputStream
-
-        // Create temp file
-        val apkFile = File(context.getExternalFilesDir(null), "update.apk")
-        val outputStream = FileOutputStream(apkFile)
-
-        val buffer = ByteArray(8192)
-        var totalBytes = 0
-        var bytesRead: Int
-
-        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-          outputStream.write(buffer, 0, bytesRead)
-          totalBytes += bytesRead
-
-          if (contentLength > 0) {
-            val progress = (totalBytes * 100) / contentLength
-            val progressMB = totalBytes / (1024 * 1024)
+      val downloaded =
+          DownloadMirrors.downloadFile(context, apkUrl, apkFile) { bytesRead, contentLength ->
+            val progress = ((bytesRead * 100) / contentLength).toInt()
+            val progressMB = bytesRead / (1024 * 1024)
             val totalMB = contentLength / (1024 * 1024)
 
             withContext(Dispatchers.Main) {
@@ -397,16 +348,14 @@ class TomIDEUpdater(private val context: Context) {
               )
             }
           }
-        }
 
-        inputStream.close()
-        outputStream.close()
-
-        apkFile
-      } catch (e: Exception) {
-        Log.e(TAG, context.getString(R.string.updater_download_apk_error), e)
-        null
+      if (!downloaded) {
+        Log.e(TAG, context.getString(R.string.updater_download_apk_error))
+        apkFile.delete()
+        return@withContext null
       }
+
+      apkFile
     }
   }
 

@@ -27,7 +27,7 @@
     android:layout_marginStart="8dp"
     android:layout_marginEnd="8dp"
     android:orientation="vertical"
-    app:layout_constraintBottom_toTopOf="@id/auto_install_switch"
+    app:layout_constraintBottom_toTopOf="@id/install_options_row"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
@@ -73,7 +73,7 @@
     android:layout_marginTop="16dp"
     android:checked="true"
     android:text="@string/action_install_git"
-    app:layout_constraintStart_toStartOf="@id/auto_install_switch"
+    app:layout_constraintStart_toStartOf="@id/install_options_row"
     app:layout_constraintTop_toBottomOf="@id/ndk_version_layout" />
 
   <com.google.android.material.checkbox.MaterialCheckBox
@@ -82,19 +82,40 @@
     android:layout_height="wrap_content"
     android:checked="true"
     android:text="@string/action_install_openssh"
-    app:layout_constraintStart_toStartOf="@id/auto_install_switch"
+    app:layout_constraintStart_toStartOf="@id/install_options_row"
     app:layout_constraintTop_toBottomOf="@id/install_git" />
 
-  <com.google.android.material.materialswitch.MaterialSwitch
-    android:id="@+id/auto_install_switch"
+  <androidx.appcompat.widget.LinearLayoutCompat
+    android:id="@+id/install_options_row"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
-    android:checked="true"
-    android:text="@string/action_auto_install"
+    android:orientation="horizontal"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@id/connection_info_container" />
+    app:layout_constraintTop_toBottomOf="@id/connection_info_container">
+
+    <com.google.android.material.materialswitch.MaterialSwitch
+      android:id="@+id/auto_install_switch"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:checked="true"
+      android:maxLines="1"
+      android:ellipsize="end"
+      android:text="@string/action_auto_install" />
+
+    <com.google.android.material.materialswitch.MaterialSwitch
+      android:id="@+id/mirror_install_switch"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="8dp"
+      android:layout_weight="1"
+      android:maxLines="1"
+      android:ellipsize="end"
+      android:text="@string/action_mirror_install" />
+
+  </androidx.appcompat.widget.LinearLayoutCompat>
 
   <com.google.android.material.textfield.TextInputLayout
     android:id="@+id/jdk_version_layout"
@@ -108,8 +129,8 @@
     app:boxCornerRadiusTopEnd="20dp"
     app:boxCornerRadiusBottomStart="20dp"
     app:boxCornerRadiusBottomEnd="20dp"
-    app:layout_constraintEnd_toEndOf="@id/auto_install_switch"
-    app:layout_constraintStart_toStartOf="@id/auto_install_switch"
+    app:layout_constraintEnd_toEndOf="@id/install_options_row"
+    app:layout_constraintStart_toStartOf="@id/install_options_row"
     app:layout_constraintTop_toBottomOf="@id/sdk_version_layout">
 
     <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -132,9 +153,9 @@
     app:boxCornerRadiusTopEnd="20dp"
     app:boxCornerRadiusBottomStart="20dp"
     app:boxCornerRadiusBottomEnd="20dp"
-    app:layout_constraintEnd_toEndOf="@id/auto_install_switch"
-    app:layout_constraintStart_toStartOf="@id/auto_install_switch"
-    app:layout_constraintTop_toBottomOf="@id/auto_install_switch">
+    app:layout_constraintEnd_toEndOf="@id/install_options_row"
+    app:layout_constraintStart_toStartOf="@id/install_options_row"
+    app:layout_constraintTop_toBottomOf="@id/install_options_row">
 
     <com.google.android.material.textfield.MaterialAutoCompleteTextView
       android:id="@+id/sdk_version"
@@ -155,8 +176,8 @@
     app:boxCornerRadiusBottomEnd="20dp"
     android:hint="@string/hint_android_ndk_version"
     android:labelFor="@id/ndk_version"
-    app:layout_constraintEnd_toEndOf="@id/auto_install_switch"
-    app:layout_constraintStart_toStartOf="@id/auto_install_switch"
+    app:layout_constraintEnd_toEndOf="@id/install_options_row"
+    app:layout_constraintStart_toStartOf="@id/install_options_row"
     app:layout_constraintTop_toBottomOf="@id/jdk_version_layout">
 
     <com.google.android.material.textfield.MaterialAutoCompleteTextView

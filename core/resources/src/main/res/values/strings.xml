@@ -996,6 +996,8 @@ This AI agent is designed to assist you in developing Android applications direc
   <string name="msg_cannot_create_terminal_session">Unable to create terminal session</string>
   <string name="action_auto_install">Automatic installation</string>
   <string name="action_manual_install">Manual installation</string>
+  <string name="action_mirror_install">CN mirror acceleration</string>
+  <string name="action_mirror_install_desc">Use mirror sites first for downloads inside the app (updates). Faster for users in China.</string>
   <string name="hint_android_sdk_version">Android SDK version</string>
   <string name="hint_android_ndk_version">Android NDK version</string>
   <string name="hin_jdk_version">JDK version</string>
