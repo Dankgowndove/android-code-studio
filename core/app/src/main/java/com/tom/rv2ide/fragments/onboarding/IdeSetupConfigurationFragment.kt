@@ -44,6 +44,7 @@ import com.tom.rv2ide.models.IdeSetupArgument
 import com.tom.rv2ide.resources.R.string
 import com.tom.rv2ide.tasks.runOnUiThread
 import com.tom.rv2ide.utils.ConnectionInfo
+import com.tom.rv2ide.utils.DownloadMirrors
 import com.tom.rv2ide.utils.Environment
 import com.tom.rv2ide.utils.flashError
 import com.tom.rv2ide.utils.getConnectionInfo
@@ -104,6 +105,11 @@ class IdeSetupConfigurationFragment : OnboardingFragment(), SlidePolicy {
         ndkVersionLayout.isEnabled = isChecked
         installGit.isEnabled = isChecked
         installOpenssh.isEnabled = isChecked
+      }
+
+      mirrorInstallSwitch.isChecked = DownloadMirrors.isMirrorEnabled(requireContext())
+      mirrorInstallSwitch.setOnCheckedChangeListener { _, isChecked ->
+        DownloadMirrors.setMirrorEnabled(requireContext(), isChecked)
       }
 
       val sdkVersions = SdkVersion.entries.map { "SDK ${it.version}" }.reversed()

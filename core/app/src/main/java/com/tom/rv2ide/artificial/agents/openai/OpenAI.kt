@@ -299,8 +299,6 @@ class OpenAI : AIAgent {
       requestBody.put("temperature", 0.7)
       requestBody.put("max_tokens", 4096)
       
-      android.util.Log.d("OpenAI", "Request body: ${requestBody.toString()}")
-      
       connection.outputStream.use { os ->
         os.write(requestBody.toString().toByteArray())
       }

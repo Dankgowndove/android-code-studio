@@ -10,7 +10,6 @@
   <string name="updater_no_updates_available">No updates available</string>
   <string name="updater_check_failed">Failed to check for updates</string>
   <string name="updater_changelog_failed">Failed to load changelog</string>
-  <string name="updater_changelog_error">Error fetching changelog</string>
   <string name="updater_no_compatible_update">No compatible update found for your device</string>
   <string name="updater_download_failed">Download failed</string>
   <string name="updater_download_failed_with_error">Download failed: %s</string>
@@ -37,7 +36,6 @@
   <string name="updater_enable_install_permission">Please enable \'Install unknown apps\' and try again</string>
 
   <!-- Log messages -->
-  <string name="updater_http_error">HTTP error: %d</string>
   <string name="updater_fetch_error">Error fetching update info</string>
   <string name="updater_parse_error">Error parsing update info</string>
   <string name="updater_version_check_log">Current version: %d, Available version: %d for arch: %s</string>
@@ -996,6 +994,8 @@ This AI agent is designed to assist you in developing Android applications direc
   <string name="msg_cannot_create_terminal_session">Unable to create terminal session</string>
   <string name="action_auto_install">Automatic installation</string>
   <string name="action_manual_install">Manual installation</string>
+  <string name="action_mirror_install">CN mirror acceleration</string>
+  <string name="action_mirror_install_desc">Use mirror sites first for downloads inside the app (app updates, language servers). First-time IDE tool installation is not affected. Faster on mainland China networks.</string>
   <string name="hint_android_sdk_version">Android SDK version</string>
   <string name="hint_android_ndk_version">Android NDK version</string>
   <string name="hin_jdk_version">JDK version</string>

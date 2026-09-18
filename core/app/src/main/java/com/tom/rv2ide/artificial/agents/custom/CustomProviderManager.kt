@@ -20,6 +20,7 @@ package com.tom.rv2ide.artificial.agents.custom
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import com.tom.rv2ide.artificial.agents.AIAgentRegistry
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -61,6 +62,7 @@ object CustomProviderManager {
 
     fun remove(id: String) {
         providers.remove(id)
+        AIAgentRegistry.unregister(id)
     }
 
     fun save(config: CustomProviderConfig) {

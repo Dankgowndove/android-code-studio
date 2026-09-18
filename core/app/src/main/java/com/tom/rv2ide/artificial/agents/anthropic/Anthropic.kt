@@ -289,8 +289,6 @@ class Anthropic : AIAgent {
       requestBody.put("system", writingRules.useThis())
       requestBody.put("messages", messages)
       
-      android.util.Log.d("Anthropic", "Request body: ${requestBody.toString()}")
-      
       connection.outputStream.use { os ->
         os.write(requestBody.toString().toByteArray())
       }

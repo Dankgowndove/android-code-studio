@@ -19,8 +19,8 @@ package com.tom.rv2ide.artificial.dialogs
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import android.preference.PreferenceManager
 
 /*
  * @author Mohammed-baqer-null @ https://github.com/Mohammed-baqer-null

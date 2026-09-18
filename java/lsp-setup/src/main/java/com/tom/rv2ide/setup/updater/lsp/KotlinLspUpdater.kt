@@ -23,6 +23,7 @@ import com.tom.rv2ide.setup.R
 import com.tom.rv2ide.resources.R.string
 import com.tom.rv2ide.setup.updater.LspUpdateDialog
 import com.tom.rv2ide.setup.updater.lsp.data.LSPProperties
+import com.tom.rv2ide.utils.DownloadMirrors
 import com.tom.rv2ide.utils.Environment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,8 +33,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileOutputStream
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.zip.ZipInputStream
 
 /**
@@ -75,7 +74,9 @@ class KotlinLspUpdater(private val context: Context) {
     fun checkForUpdates(currentVersion: String, onResult: ((Boolean, String?) -> Unit)? = null) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val jsonString = URL(manifestUrl).readText()
+                val jsonString =
+                    DownloadMirrors.fetchText(context, manifestUrl)
+                        ?: error("Failed to fetch the language server manifest")
                 val manifest = Json.decodeFromString<Manifest>(jsonString)
                 val serverItem = manifest.Servers.firstOrNull()
 
@@ -154,32 +155,21 @@ class KotlinLspUpdater(private val context: Context) {
                     updater.updateProgress(0)
 
                     try {
-                        val url = URL(downloadUrl)
-                        val connection = url.openConnection() as HttpURLConnection
-                        connection.connect()
-
-                        val fileLength = connection.contentLength
                         val fileName = downloadUrl.substringAfterLast("/")
-                        val downloadDir = context.getExternalFilesDir(null)
+                        val downloadDir = context.getExternalFilesDir(null) ?: context.filesDir
                         val file = File(downloadDir, fileName)
 
-                        connection.inputStream.use { input ->
-                            FileOutputStream(file).use { output ->
-                                val buffer = ByteArray(8192)
-                                var bytesRead: Int
-                                var totalBytesRead: Long = 0
-
-                                while (input.read(buffer).also { bytesRead = it } != -1) {
-                                    output.write(buffer, 0, bytesRead)
-                                    totalBytesRead += bytesRead
-
-                                    if (fileLength > 0) {
-                                        val progress = ((totalBytesRead * 100) / fileLength).toInt()
-                                        updater.updateProgress(progress)
-                                        updater.updateDescription(context.getString(R.string.lsp_downloading_progress, progress))
-                                    }
-                                }
+                        val downloaded =
+                            DownloadMirrors.downloadFile(context, downloadUrl, file) { bytesRead, total ->
+                                val progress = ((bytesRead * 100) / total).toInt()
+                                updater.updateProgress(progress)
+                                updater.updateDescription(
+                                    context.getString(R.string.lsp_downloading_progress, progress)
+                                )
                             }
+
+                        if (!downloaded) {
+                            error("Failed to download $fileName")
                         }
 
                         updater.updateProgress(100)
