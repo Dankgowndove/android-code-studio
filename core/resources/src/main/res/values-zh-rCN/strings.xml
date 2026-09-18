@@ -10,7 +10,6 @@
   <string name="updater_no_updates_available">暂无可用更新</string>
   <string name="updater_check_failed">检查更新失败</string>
   <string name="updater_changelog_failed">加载更新日志失败</string>
-  <string name="updater_changelog_error">获取变更日志时出错</string>
   <string name="updater_no_compatible_update">找不到适合您的设备的兼容更新</string>
   <string name="updater_download_failed">下载失败</string>
   <string name="updater_download_failed_with_error">下载失败：%s</string>
@@ -37,7 +36,6 @@
   <string name="updater_enable_install_permission">请启用“安装未知应用程序”并重试</string>
 
   <!-- Log messages -->
-  <string name="updater_http_error">HTTP 错误：%s</string>
   <string name="updater_fetch_error">获取更新信息时出错</string>
   <string name="updater_parse_error">解析更新信息时出错</string>
   <string name="updater_version_check_log" formatted="false">当前版本：%d，可用版本：%d，架构：%s</string>
