@@ -415,62 +415,8 @@ class DeepSeek : AIAgent {
     return writer.writeFile(filePath, content, createBackup = true)
   }
 
-  fun parseAndApplyModifications(response: String, capturedStates: Map<String, String>): List<FileModification> {
-    val modifications = mutableListOf<FileModification>()
-    val parser = com.tom.rv2ide.artificial.parser.SnippetParser()
-    
-    if (response.contains("FILE_TO_MODIFY:")) {
-      val lines = response.lines()
-      var currentFile: String? = null
-      val contentBuilder = StringBuilder()
-      var inContent = false
-      
-      for (line in lines) {
-        if (line.startsWith("FILE_TO_MODIFY:")) {
-          if (currentFile != null && contentBuilder.isNotEmpty()) {
-            val rawContent = contentBuilder.toString().trim()
-            val cleanedContent = parser.cleanFileContent(rawContent)
-            val previousContent = capturedStates[currentFile]
-            val writeResult = writeFile(currentFile, cleanedContent)
-            
-            val success = writeResult is FileWriteResult.Success
-            recordModification(currentFile, previousContent, cleanedContent, success)
-            
-            modifications.add(FileModification(currentFile, cleanedContent, writeResult))
-          }
-          
-          currentFile = line.substringAfter("FILE_TO_MODIFY:").trim()
-          contentBuilder.clear()
-          inContent = true
-        } else if (inContent) {
-          contentBuilder.append(line).append("\n")
-        }
-      }
-      
-      if (currentFile != null && contentBuilder.isNotEmpty()) {
-        val rawContent = contentBuilder.toString().trim()
-        val cleanedContent = parser.cleanFileContent(rawContent)
-        val previousContent = capturedStates[currentFile]
-        val writeResult = writeFile(currentFile, cleanedContent)
-        
-        val success = writeResult is FileWriteResult.Success
-        recordModification(currentFile, previousContent, cleanedContent, success)
-        
-        modifications.add(FileModification(currentFile, cleanedContent, writeResult))
-      }
-    }
-    
-    return modifications
-  }
-
   override fun isInitialized(): Boolean = apiKey != null
 }
-
-data class FileModification(
-    val filePath: String,
-    val content: String,
-    val writeResult: FileWriteResult
-)
 
 data class ConversationMessage(
     val role: String,
