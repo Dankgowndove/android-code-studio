@@ -40,7 +40,7 @@ object DownloadMirrors {
 
   private val log = LoggerFactory.getLogger(DownloadMirrors::class.java)
 
-  private const val PREFS_KEY = "use_mirror_downloads"
+  const val PREFS_KEY = "use_mirror_downloads"
 
   /** Floor for a single mirror/direct attempt so the last candidate still gets a real chance. */
   private const val MIN_ATTEMPT_TIMEOUT_MS = 3000

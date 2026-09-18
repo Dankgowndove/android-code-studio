@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.preference.Preference
 import com.tom.rv2ide.R as MainR
+import com.tom.rv2ide.app.BaseApplication
 import com.tom.rv2ide.preferences.internal.GeneralPreferences
 import com.tom.rv2ide.resources.R.drawable
 import com.tom.rv2ide.resources.R.string
@@ -31,6 +32,7 @@ import com.tom.rv2ide.ui.themes.IThemeManager
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import com.tom.rv2ide.utils.AppRestartDialog
+import com.tom.rv2ide.utils.DownloadMirrors
 import android.os.Handler
 import android.os.Looper
 
@@ -45,6 +47,7 @@ class GeneralPreferencesScreen(
   init {
     addPreference(InterfaceConfig())
     addPreference(ProjectConfig())
+    addPreference(UseMirrorDownloads())
     addPreference(TerminalConfig())
   }
 }
@@ -302,6 +305,30 @@ class UseSytemShell(
 
   override fun onPreferenceChanged(preference: Preference, newValue: Any?): Boolean {
     GeneralPreferences.useSystemShell = newValue as Boolean? ?: GeneralPreferences.useSystemShell
+    return true
+  }
+}
+
+@Parcelize
+private class UseMirrorDownloads(
+    override val key: String = DownloadMirrors.PREFS_KEY,
+    override val title: Int = string.action_mirror_install,
+    override val summary: Int? = string.action_mirror_install_desc,
+    override val icon: Int? = drawable.ic_download,
+) : SwitchPreference() {
+
+  override fun onCreatePreference(context: Context): Preference {
+    val pref = super.onCreatePreference(context) as androidx.preference.SwitchPreference
+    pref.isChecked = DownloadMirrors.isMirrorEnabled(context)
+    return pref
+  }
+
+  override fun onPreferenceChanged(preference: Preference, newValue: Any?): Boolean {
+    val appContext = BaseApplication.getBaseInstance()
+    DownloadMirrors.setMirrorEnabled(
+        appContext,
+        newValue as Boolean? ?: DownloadMirrors.isMirrorEnabled(appContext),
+    )
     return true
   }
 }

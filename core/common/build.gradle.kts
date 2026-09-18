@@ -43,6 +43,7 @@ dependencies {
     
     api(libs.androidx.core.ktx)
     api(libs.common.kotlin)
+    api(libs.common.kotlin.coroutines.core)
 
     api(projects.core.resources)
     api(projects.editor.lexers)
