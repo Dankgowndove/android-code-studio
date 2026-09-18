@@ -1,6 +1,7 @@
 # Android Code Studio 优化路线图
 
 > 生成日期：2026-09-05 ｜ 基于 `feature/ai-agent-update` 分支分析与逐行核实
+> 更新日期：2026-09-19 ｜ 追加「镜像功能收尾」执行记录（见第六节），基于 `feature/cn-mirror-download`
 > 配套文档：仓库根 `PROJECT_ANALYSIS.md`（架构全览）
 > 原则：按阶段推进，每阶段独立提交、独立验证；未标注「已执行」的条目均为**建议后续做**，避免一次性大改。
 
@@ -62,3 +63,37 @@
 - P2 属大型重构：建议每提取一个共享类型即编译一次 `:core:app`，避免一次大 diff
 - P3 涉及产品行为，改动前需确认期望语义（默认允许写入？首次询问？）
 - P1 的 configuration-cache 若在设备端（AndroidIDE 环境）出现兼容问题，可随时恢复注释状态
+
+## 六、执行记录：镜像功能收尾（2026-09-19，`feature/cn-mirror-download`）
+
+### 已执行
+
+| 提交 | 内容 |
+|------|------|
+| `0b3462e` | 修复 CN 镜像提交引入的**编译错误**（非 suspend 回调中调用 `withContext`）；`downloadFile` 改为 suspend + 可挂起进度回调，增加截断检测/取消传播/百分比节流；展开 `updater.json` 的 `{baseUrl}`/`{versionName}` 模板；统一 ABI 变体选择（`selectVariantForDevice`） |
+| `6db147a` | 删除重构后失去唯一调用点的 `updater_http_error`、`updater_changelog_error`（3 个 locale） |
+| `717c585` | `fetchText` 引入总体时限（清单 20s / 变更日志 12s，单次尝试 ≥3s），替换原先「每个候选各 10s」的最坏 30s 行为 |
+| `a77d643` | 设置 → 通用 新增「国内镜像加速」开关（与引导页同一 `use_mirror_downloads` key）；`DownloadMirrors` 从 `core/app` 移到 `core/common`（包名不变），`core/common` 显式声明 coroutines |
+| `625fca3` | Kotlin 语言服务器（`java/lsp-setup`）的清单与安装包下载接入镜像 |
+| （本次） | 更新本文档 |
+
+- 验证方式：云端 CI 手动 dispatch（`gh workflow run "Build Android Code Studio"`）。本 fork 的 **push 与 pull_request 事件都不触发 Actions**（历史运行全部为 `workflow_dispatch`），因此每次改动后需手动触发。
+- PR：`feature/cn-mirror-download` → `dev`（30 个提交），合并前需设备冒烟：设置页开关同步、更新检查/下载、LSP 更新。
+
+### 未执行 / 已知限制
+
+- **首次安装（`idesetup`）无法接入镜像**：该安装器是 `termux/application/src/main/assets/data/common/{arm,arm64}/idesetup` 中的预编译 ELF（ARC4 加密载荷 + `ptrace` 反调试），仓库内无源码；上游 `androidide-tools` 的 `idesetup` 是 bash 脚本且只暴露短选项 `-m <manifest-url>`，与本 App 的长选项接口不匹配。设置项文案已明确该范围限制。
+- 镜像策略只对 GitHub 域生效；Gradle 发行包（`services.gradle.org`）、`dl.google.com` Maven、Termux APT 不在范围内。
+- `x86_64`/`x86` 无 `idesetup` 资产，这两个架构的自动安装本就不受支持（既有缺陷）。
+
+### 下一步（P2 重构，独立分支 `feature/ai-agent-core-unification`）
+
+按「先删除、再共享、后统一」的顺序推进，每步一个提交 + CI 编译 + 设备冒烟：
+
+1. **测试地基**：`core/app` 增加 `testImplementation(libs.tests.junit)` 与 `src/test`，workflow 增加 `testDebugUnitTest` 步骤（目前 `core/app` 无任何测试源集/依赖）。
+2. **删死代码**：6 份从未被调用的 `parseAndApplyModifications()` 与 6 份 `FileModification`（约 −330 行）；活路径是 `AIAgentManager.processModifications` + `BaseFileModification`。
+3. **共享模型**：7 份 `ConversationMessage`（字段完全一致）提取到 `artificial/agents/model/`。
+4. **抽纯逻辑 + 基类**：`PromptBuilder`（~70 行 ×5）、`CorrectionDetector`（×6）、`ConversationHistory`（×7）与 7 份相同的 modification/计数器/writeFile 逻辑提到 `AbstractAIAgent`；注意 **CustomProvider 的 prompt 不含历史/文件内容，且其工厂返回缓存单例**，不可顺手统一。
+5. **统一 HTTP 引擎**：以 `CustomProvider` 的双协议客户端为蓝本抽出 `AiHttpClient`（endpoint/鉴权头/system 位置/响应取值四个参数轴），迁移 OpenAI/DeepSeek/Grok/Anthropic/LocalLLM/CustomProvider，统一到 OkHttp 并按现值保留超时；Gemini 保持官方 SDK。
+
+风险：AI 层无运行时自动化验证，CI 只能保证编译与纯逻辑单测，**每个提供商的设备冒烟是硬门槛**；逐个提供商单独提交以便二分回滚。
