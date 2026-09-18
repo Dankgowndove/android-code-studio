@@ -87,6 +87,15 @@ jobs:
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: ./gradlew assemble${{ env.BUILD_TYPE }}
 
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Show unit test results
+        if: always()
+        run: |
+          ls core/app/build/test-results/testDebugUnitTest/ || echo "No test results directory"
+          grep -ho 'tests="[0-9]*"' core/app/build/test-results/testDebugUnitTest/*.xml || echo "No test result XML found"
+
       - name: List APK files
         run: ls -la core/app/build/outputs/apk/${{ env.BUILD_TYPE_LOWER }}/ || echo "Directory not found"
 

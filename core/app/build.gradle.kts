@@ -319,5 +319,7 @@ dependencies {
   // This is to build the tooling-api-impl project before the app is built
   // So we always copy the latest JAR file to assets
   compileOnly(projects.tooling.impl)
-  
+
+  // JVM unit tests for Android-free logic (pure helpers under artificial/)
+  testImplementation(libs.tests.junit)
 }
