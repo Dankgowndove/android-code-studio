@@ -113,7 +113,8 @@
       android:layout_weight="1"
       android:maxLines="1"
       android:ellipsize="end"
-      android:text="@string/action_mirror_install" />
+      android:text="@string/action_mirror_install"
+      android:tooltipText="@string/action_mirror_install_desc" />
 
   </androidx.appcompat.widget.LinearLayoutCompat>
 

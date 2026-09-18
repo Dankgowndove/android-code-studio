@@ -90,21 +90,29 @@ class TomIDEUpdater(private val context: Context) {
     return try {
       val jsonObject = JSONObject(jsonString)
       val variantsJson = jsonObject.getJSONObject("variants")
+      val baseVersionName = jsonObject.getString("baseVersionName")
+      val baseUrl = jsonObject.optString("baseUrl")
       val variants = mutableMapOf<String, ArchVariant>()
 
       for (key in variantsJson.keys()) {
         val variantJson = variantsJson.getJSONObject(key)
+        val versionName = variantJson.getString("versionName")
         variants[key] =
             ArchVariant(
                 versionCode = variantJson.getInt("versionCode"),
-                versionName = variantJson.getString("versionName"),
-                apkUrl = variantJson.getString("apkUrl"),
+                versionName = versionName,
+                apkUrl =
+                    resolveUrlTemplate(
+                        variantJson.getString("apkUrl"),
+                        baseUrl,
+                        versionName,
+                    ),
             )
       }
 
       UpdateInfo(
           baseVersionCode = jsonObject.getInt("baseVersionCode"),
-          baseVersionName = jsonObject.getString("baseVersionName"),
+          baseVersionName = baseVersionName,
           variants = variants,
           changelogUrl = jsonObject.getString("changelog"),
       )
@@ -112,6 +120,20 @@ class TomIDEUpdater(private val context: Context) {
       Log.e(TAG, context.getString(R.string.updater_parse_error), e)
       null
     }
+  }
+
+  /**
+   * Expands the `{baseUrl}` / `{versionName}` templates published in `updater.json`, e.g.
+   * `{baseUrl}/android-code-studio-aarch64-{versionName}.apk`. Absolute URLs, and manifests
+   * that no longer use templates, pass through unchanged. `{versionName}` is expanded second
+   * because the base URL itself contains `.../download/v{versionName}`.
+   */
+  private fun resolveUrlTemplate(template: String, baseUrl: String, versionName: String): String {
+    var url = template
+    if (baseUrl.isNotEmpty()) {
+      url = url.replace("{baseUrl}", baseUrl)
+    }
+    return url.replace("{versionName}", versionName)
   }
 
   private suspend fun fetchChangelog(changelogUrl: String): String {
@@ -163,9 +185,7 @@ class TomIDEUpdater(private val context: Context) {
           context.packageManager.getPackageInfo(context.packageName, 0).versionCode
 
       val currentArch = getDeviceArchitecture()
-      val availableVariant =
-          updateInfo.variants[currentArch]
-              ?: updateInfo.variants["armeabi-v7a"] // Fallback for arm64 devices
+      val availableVariant = selectVariantForDevice(updateInfo)
 
       if (availableVariant != null) {
         Log.d(
@@ -221,7 +241,15 @@ class TomIDEUpdater(private val context: Context) {
     return "armeabi-v7a"
   }
 
-  private fun getVariantForCurrentArchitecture(updateInfo: UpdateInfo): ArchVariant? {
+  /**
+   * Picks the best installable variant for this device: an exact ABI match first, then the
+   * compatible 32-bit fallback, then a universal build. Returns null when nothing can be
+   * installed here, so a foreign-ABI APK is never offered.
+   *
+   * Both the availability check and the update dialog use this single selector so they can
+   * never disagree about which build a device gets.
+   */
+  private fun selectVariantForDevice(updateInfo: UpdateInfo): ArchVariant? {
     val currentArch = getDeviceArchitecture()
     Log.d(TAG, context.getString(R.string.updater_device_arch, currentArch))
     Log.d(
@@ -229,42 +257,43 @@ class TomIDEUpdater(private val context: Context) {
         context.getString(R.string.updater_available_variants, updateInfo.variants.keys.toString()),
     )
 
-    // Try to get the exact architecture match
-    var variant = updateInfo.variants[currentArch]
+    // Exact architecture match.
+    updateInfo.variants[currentArch]?.let {
+      return it
+    }
 
-    // If no exact match, try fallbacks
-    if (variant == null) {
-      Log.d(TAG, context.getString(R.string.updater_trying_fallbacks, currentArch))
-      when (currentArch) {
-        "arm64-v8a" -> {
-          // arm64 can run armeabi-v7a
-          variant = updateInfo.variants["armeabi-v7a"]
-          if (variant != null) {
-            Log.d(TAG, context.getString(R.string.updater_using_arm32_fallback))
-          }
+    // Compatible 32-bit fallback: arm64 devices run armeabi-v7a, x86_64 devices run x86.
+    Log.d(TAG, context.getString(R.string.updater_trying_fallbacks, currentArch))
+    val fallbackKey =
+        when (currentArch) {
+          "arm64-v8a" -> "armeabi-v7a"
+          "x86_64" -> "x86"
+          else -> null
         }
-        "x86_64" -> {
-          // x86_64 can run x86
-          variant = updateInfo.variants["x86"]
-          if (variant != null) {
-            Log.d(TAG, context.getString(R.string.updater_using_x86_fallback))
-          }
-        }
+    if (fallbackKey != null) {
+      val fallback = updateInfo.variants[fallbackKey]
+      if (fallback != null) {
+        val fallbackMessage =
+            if (fallbackKey == "armeabi-v7a") R.string.updater_using_arm32_fallback
+            else R.string.updater_using_x86_fallback
+        Log.d(TAG, context.getString(fallbackMessage))
+        return fallback
       }
     }
 
-    // If still no match, try to get any available variant
-    if (variant == null && updateInfo.variants.isNotEmpty()) {
-      Log.w(TAG, context.getString(R.string.updater_using_first_variant))
-      variant = updateInfo.variants.values.first()
+    // A universal build installs on every ABI; any other variant would be a foreign-ABI APK.
+    val universal = updateInfo.variants["universal"]
+    if (universal != null) {
+      Log.d(TAG, context.getString(R.string.updater_using_first_variant))
+      return universal
     }
 
-    return variant
+    return null
   }
 
   private fun showUpdateDialog(updateInfo: UpdateInfo, changelog: String) {
     val currentArch = getDeviceArchitecture()
-    val availableVariant = getVariantForCurrentArchitecture(updateInfo)
+    val availableVariant = selectVariantForDevice(updateInfo)
 
     if (availableVariant == null) {
       return
@@ -333,7 +362,7 @@ class TomIDEUpdater(private val context: Context) {
   private suspend fun downloadApk(apkUrl: String): File? {
     return withContext(Dispatchers.IO) {
       // Create temp file
-      val apkFile = File(context.getExternalFilesDir(null), "update.apk")
+      val apkFile = File(context.getExternalFilesDir(null) ?: context.filesDir, "update.apk")
 
       val downloaded =
           DownloadMirrors.downloadFile(context, apkUrl, apkFile) { bytesRead, contentLength ->

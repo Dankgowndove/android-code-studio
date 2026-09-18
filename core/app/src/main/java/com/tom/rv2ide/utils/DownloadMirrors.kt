@@ -23,6 +23,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import org.slf4j.LoggerFactory
 
 /*
@@ -40,7 +43,12 @@ object DownloadMirrors {
   private const val PREFS_KEY = "use_mirror_downloads"
 
   private val GITHUB_HOSTS =
-      listOf("https://github.com/", "https://raw.githubusercontent.com/")
+      listOf(
+          "https://github.com/",
+          "https://raw.githubusercontent.com/",
+          "https://objects.githubusercontent.com/",
+          "https://codeload.github.com/",
+      )
 
   private val MIRROR_PREFIXES = listOf("https://ghfast.top", "https://ghproxy.net")
 
@@ -86,14 +94,20 @@ object DownloadMirrors {
   }
 
   /**
-   * Downloads [original] to [destFile] trying mirror candidates first. Progress is
-   * reported as (bytesRead, contentLength) and only when the length is known.
+   * Downloads [original] to [destFile] trying mirror candidates first.
+   *
+   * Blocking network IO happens on the caller's dispatcher, but [onProgress] is a suspend
+   * callback so callers may hop to another thread (e.g. the main thread) from it. Progress
+   * is reported as (bytesRead, contentLength) only when the length is known, and is throttled
+   * to whole-percent changes so a fast mirror cannot flood the UI thread with updates.
+   *
+   * @return true only when the complete body was written to [destFile].
    */
-  fun downloadFile(
+  suspend fun downloadFile(
       context: Context,
       original: String,
       destFile: File,
-      onProgress: ((Long, Long) -> Unit)? = null,
+      onProgress: (suspend (Long, Long) -> Unit)? = null,
   ): Boolean {
     for (candidate in candidateUrls(original, isMirrorEnabled(context))) {
       var connection: HttpURLConnection? = null
@@ -110,10 +124,13 @@ object DownloadMirrors {
 
         val contentLength = connection.contentLength.toLong()
         var downloaded = 0L
+        var lastPercent = -1
         connection.inputStream.use { input ->
           FileOutputStream(destFile).use { output ->
             val buffer = ByteArray(8192)
             while (true) {
+              // Blocking reads are not cancellable, so check between chunks instead.
+              currentCoroutineContext().ensureActive()
               val read = input.read(buffer)
               if (read == -1) {
                 break
@@ -121,13 +138,29 @@ object DownloadMirrors {
               output.write(buffer, 0, read)
               downloaded += read
               if (contentLength > 0 && onProgress != null) {
-                onProgress(downloaded, contentLength)
+                val percent = (downloaded * 100 / contentLength).toInt()
+                // Always report the final chunk so the UI can reach 100%.
+                if (percent != lastPercent || downloaded == contentLength) {
+                  lastPercent = percent
+                  onProgress(downloaded, contentLength)
+                }
               }
             }
           }
         }
+
+        if (contentLength > 0 && downloaded != contentLength) {
+          // A truncated body (common with flaky mirrors) must never be installed.
+          log.warn("Download {} truncated: {} of {} bytes", candidate, downloaded, contentLength)
+          destFile.delete()
+          continue
+        }
+
         log.info("Downloaded {} ({} bytes)", candidate, downloaded)
         return true
+      } catch (e: CancellationException) {
+        destFile.delete()
+        throw e
       } catch (e: Exception) {
         log.warn("Download {} failed: {}", candidate, e.message)
         destFile.delete()
