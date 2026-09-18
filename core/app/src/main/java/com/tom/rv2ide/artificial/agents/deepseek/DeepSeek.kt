@@ -34,6 +34,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import org.json.JSONObject
 import org.json.JSONArray
+import com.tom.rv2ide.artificial.agents.model.ConversationMessage
 
 class DeepSeek : AIAgent {
 
@@ -418,7 +419,3 @@ class DeepSeek : AIAgent {
   override fun isInitialized(): Boolean = apiKey != null
 }
 
-data class ConversationMessage(
-    val role: String,
-    val content: String
-)

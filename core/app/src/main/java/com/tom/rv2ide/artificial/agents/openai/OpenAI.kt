@@ -36,6 +36,7 @@ import com.tom.rv2ide.artificial.agents.AIAgent
 import com.tom.rv2ide.artificial.agents.AIAgentRegistry
 import com.tom.rv2ide.artificial.secrets.ApiKey
 import com.tom.rv2ide.artificial.agents.ModificationAttempt
+import com.tom.rv2ide.artificial.agents.model.ConversationMessage
 
 /*
  * @author Mohammed-baqer-null @ https://github.com/Mohammed-baqer-null
@@ -430,7 +431,3 @@ class OpenAI : AIAgent {
   override fun isInitialized(): Boolean = apiKey != null
 }
 
-data class ConversationMessage(
-    val role: String,
-    val content: String
-)

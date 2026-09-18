@@ -39,6 +39,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import org.json.JSONObject
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
+import com.tom.rv2ide.artificial.agents.model.ConversationMessage
 
 class LocalLLM : AIAgent {
 
@@ -376,9 +377,4 @@ class LocalLLM : AIAgent {
   }
   
 }
-
-data class ConversationMessage(
-    val role: String,
-    val content: String
-)
 

@@ -37,6 +37,7 @@ import org.json.JSONArray
 import java.io.File
 import java.io.FileInputStream
 import java.util.concurrent.TimeUnit
+import com.tom.rv2ide.artificial.agents.model.ConversationMessage
 
 /**
  * Custom AI provider that supports both OpenAI-compatible and Claude-compatible APIs.
@@ -325,7 +326,3 @@ class CustomProvider(
     }
 }
 
-data class ConversationMessage(
-    val role: String,
-    val content: String
-)

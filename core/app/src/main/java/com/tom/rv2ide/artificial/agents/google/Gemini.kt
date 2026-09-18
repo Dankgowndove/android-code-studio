@@ -33,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import com.tom.rv2ide.artificial.agents.Agents
+import com.tom.rv2ide.artificial.agents.model.ConversationMessage
 
 /*
  * @author Mohammed-baqer-null @ https://github.com/Mohammed-baqer-null
@@ -348,7 +349,3 @@ class Gemini : AIAgent {
   override fun isInitialized(): Boolean = generativeModel != null
 }
 
-data class ConversationMessage(
-    val role: String,
-    val content: String
-)
