@@ -138,7 +138,14 @@ class TomIDEUpdater(private val context: Context) {
 
   private suspend fun fetchChangelog(changelogUrl: String): String {
     return withContext(Dispatchers.IO) {
-      val markdown = DownloadMirrors.fetchText(context, changelogUrl)
+      // The changelog is nice-to-have: keep it from delaying the update dialog for long.
+      val markdown =
+          DownloadMirrors.fetchText(
+              context,
+              changelogUrl,
+              timeoutMs = 8000,
+              totalBudgetMs = 12000,
+          )
       if (markdown == null) {
         context.getString(R.string.updater_changelog_failed)
       } else {

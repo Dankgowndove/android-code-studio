@@ -42,6 +42,9 @@ object DownloadMirrors {
 
   private const val PREFS_KEY = "use_mirror_downloads"
 
+  /** Floor for a single mirror/direct attempt so the last candidate still gets a real chance. */
+  private const val MIN_ATTEMPT_TIMEOUT_MS = 3000
+
   private val GITHUB_HOSTS =
       listOf(
           "https://github.com/",
@@ -70,15 +73,43 @@ object DownloadMirrors {
     return MIRROR_PREFIXES.map { "$it/$original" } + original
   }
 
-  /** GETs [original] trying mirror candidates first. Returns the body or null. */
-  fun fetchText(context: Context, original: String, timeoutMs: Int = 10000): String? {
-    for (candidate in candidateUrls(original, isMirrorEnabled(context))) {
+  /**
+   * GETs [original] trying mirror candidates first. Returns the body or null.
+   *
+   * The whole attempt sequence is bounded by [totalBudgetMs]: every candidate gets an equal
+   * share of the remaining budget (never less than [MIN_ATTEMPT_TIMEOUT_MS], never more than
+   * [timeoutMs]) so an unreachable mirror cannot starve the direct fallback. The effective
+   * upper bound is the budget plus at most one attempt, because connect and read timeouts are
+   * applied sequentially.
+   */
+  fun fetchText(
+      context: Context,
+      original: String,
+      timeoutMs: Int = 10000,
+      totalBudgetMs: Int = 20000,
+  ): String? {
+    val candidates = candidateUrls(original, isMirrorEnabled(context))
+    val deadline = System.currentTimeMillis() + totalBudgetMs
+
+    for (index in candidates.indices) {
+      val candidate = candidates[index]
+      val remaining = deadline - System.currentTimeMillis()
+      if (remaining <= 0) {
+        log.warn("GET {} skipped: fetch budget exhausted", candidate)
+        break
+      }
+
+      val candidatesLeft = candidates.size - index
+      val fairShare = remaining / candidatesLeft
+      val attemptTimeout =
+          minOf(timeoutMs.toLong(), maxOf(fairShare, MIN_ATTEMPT_TIMEOUT_MS.toLong())).toInt()
+
       var connection: HttpURLConnection? = null
       try {
         connection = URL(candidate).openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
-        connection.connectTimeout = timeoutMs
-        connection.readTimeout = timeoutMs
+        connection.connectTimeout = attemptTimeout
+        connection.readTimeout = attemptTimeout
         val code = connection.responseCode
         if (code == HttpURLConnection.HTTP_OK) {
           return connection.inputStream.bufferedReader().use { it.readText() }
